@@ -14,6 +14,7 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
     s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &LocalPlanning::OdomCallback, this);
     s_ahead_vehicle_sub = nh_.subscribe("/adas/perception/ahead_vehicle_info", 10, &LocalPlanning::AheadVehicleCallback, this);
     s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &LocalPlanning::MissionCallback, this);
+    s_traffic_light_sub = nh_.subscribe("/yolov5/traffic_light_signal", 10, &LocalPlanning::TrafficLightCallback, this);
 
     Init();
 }
@@ -49,6 +50,11 @@ void LocalPlanning::AheadVehicleCallback(const kucudas_msgs::VehicleInformationC
 
 void LocalPlanning::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){
     m_mission = in_mission_msg->data;
+}
+
+void LocalPlanning::TrafficLightCallback(const std_msgs::Bool &traffic_light_msg){
+    // if is_red_light == True  STOP!!!!!!  (case : Red, Yellow)
+    is_red_light = traffic_light_msg.data;
 }
 
 
