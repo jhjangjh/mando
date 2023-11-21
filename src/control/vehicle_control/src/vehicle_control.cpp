@@ -246,7 +246,7 @@ double VehicleControl::GetSteeringAngle(kucudas_msgs::TrajectoryPoint target_poi
 {
     double steering_angle;
     m_target_lateral_error = GetCrossTrackError(target_point);
-    double wheel_base = 1.6182410719546794 + 1.3864049241392784;
+    double wheel_base = 1.2501934625522466 + 1.256300229233517;
     double lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
     steering_angle = -atan2(2 * wheel_base * m_target_lateral_error,pow(lookahead_point_distance,2));
     return steering_angle;
