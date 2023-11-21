@@ -160,6 +160,12 @@ void VehicleControl::SetControlCmd(double pid_speed_error, double steering_angle
         brake = 0; 
     }
 
+    if(m_target_point.speed<1)
+    {
+        throttle = 0;  
+        brake = 1;         
+    }
+
     m_control_msg.throttle = throttle;
     m_control_msg.brake = brake;
     m_control_msg.steer = steering_angle;

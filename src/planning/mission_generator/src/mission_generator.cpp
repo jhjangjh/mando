@@ -142,12 +142,12 @@ void MissionGenerator::GenerateMission(){
         m_mission = STATIC_OBSTACLE_1;
         mission_msg.data = m_mission;
     }
-    else if(m_closest_id<515)
+    else if(m_closest_id<540)
     { 
         m_mission = NORMAL_DRIVE;
         mission_msg.data = m_mission;
     }
-    else if(m_closest_id<600)
+    else if(m_closest_id<563)
     { 
         m_mission = TRAFFIC_LIGHT;
         mission_msg.data = m_mission;
@@ -162,12 +162,12 @@ void MissionGenerator::GenerateMission(){
         m_mission = ROTARY;
         mission_msg.data = m_mission;
     }          
-    else if(m_closest_id<1100)
+    else if(m_closest_id<1120)
     { 
         m_mission = NORMAL_DRIVE;
         mission_msg.data = m_mission;
     } 
-    else if(m_closest_id<1170)
+    else if(m_closest_id<1132)
     { 
         m_mission = TRAFFIC_LIGHT;
         mission_msg.data = m_mission;
