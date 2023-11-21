@@ -22,6 +22,7 @@
 #include <kucudas_msgs/Trajectory.h>
 #include <kucudas_msgs/VehicleInformation.h>
 #include <std_msgs/Int8.h>
+#include <std_msgs/Bool.h>
 
 // Config header
 #include <local_planning_config.hpp>
@@ -47,6 +48,7 @@ public:
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
     void AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg);
     void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
+    void TrafficLightCallback(const std_msgs::Bool &traffic_light_msg);
     void ProcessINI();
     void Run();
     void Publish();
@@ -69,6 +71,7 @@ private:
     ros::Subscriber s_odom_sub;
     ros::Subscriber s_ahead_vehicle_sub;
     ros::Subscriber s_mission_sub;
+    ros::Subscriber s_traffic_light;    // subscribe traffic light signal
 
     // Mutex
     std::mutex mutex_route;
