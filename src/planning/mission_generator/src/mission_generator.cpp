@@ -9,11 +9,21 @@ MissionGenerator::MissionGenerator(ros::NodeHandle &nh_){
     
     p_global_route_pub = nh_.advertise<geometry_msgs::PoseArray>("/adas/planning/global_route", 10);
     p_rviz_lane_pub = nh_.advertise<visualization_msgs::MarkerArray>("/hmi/lane", 10);
+    p_mission_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/mission", 10);
+
+    s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &MissionGenerator::OdomCallback, this);
 
     Init();
 }
 
 MissionGenerator::~MissionGenerator(){}
+
+void MissionGenerator::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
+    mutex_odom.lock();
+    m_odom.pose = in_odom_msg->pose;
+    m_odom.twist = in_odom_msg->twist;
+    mutex_odom.unlock();
+}
 
 void MissionGenerator::Init(){
     ProcessINI();
@@ -22,15 +32,22 @@ void MissionGenerator::Init(){
 
 void MissionGenerator::Run(){
     ProcessINI();
+    UpdateState();
     MakeGlobalRoute();
-    UpdateRvizLane();
-    ROS_INFO_STREAM("Mission Generator is running...");
+    m_closest_point = FindClosestPoint();
+    GenerateMission();
+    UpdateRviz();
+    if(m_print_count++ % 10 == 0)
+    {
+        ROS_INFO_STREAM("Mission Generator is running...");
+    }
 
 }
 
 void MissionGenerator::Publish(){
     p_global_route_pub.publish(global_route_msg);
     p_rviz_lane_pub.publish(lane_marker_array_msg);
+    p_mission_pub.publish(mission_msg);
 }
 
 void MissionGenerator::ProcessINI(){
@@ -94,8 +111,6 @@ void MissionGenerator::ReadCSVFile(){
 
     }
 
-    ROS_INFO_STREAM("Map loaded");
-
 }
 
 void MissionGenerator::MakeGlobalRoute()
@@ -114,8 +129,55 @@ void MissionGenerator::MakeGlobalRoute()
     global_route_msg = temp_global_route;
 }
 
-void MissionGenerator::UpdateRvizLane()
+void MissionGenerator::GenerateMission(){
+    if(m_closest_id<3000)
+    {
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }
+    ROS_INFO_STREAM("m_mission : "<< m_mission);
+}
+
+void MissionGenerator::UpdateState()
 {
+    m_ego_x = m_odom.pose.pose.position.x;
+    m_ego_y = m_odom.pose.pose.position.y;
+
+    tf::Quaternion q(m_odom.pose.pose.orientation.x,m_odom.pose.pose.orientation.y,m_odom.pose.pose.orientation.z,m_odom.pose.pose.orientation.w);
+    tf::Matrix3x3 m(q);
+
+    double roll,pitch,yaw;
+    m.getRPY(roll,pitch,yaw);
+    m_yaw = yaw;
+
+    m_velocity = sqrt(pow(m_odom.twist.twist.linear.x,2)+pow(m_odom.twist.twist.linear.y,2)) * 3.6;  // kph
+}
+
+geometry_msgs::Point MissionGenerator::FindClosestPoint(){
+    int closest_id = 0;
+    double min_distance = HUGE_VAL;
+    int index=0;
+    for (auto waypoint : m_waypoint_vec)
+    {
+        double distance = sqrt(pow(waypoint.x-m_ego_x,2)+pow(waypoint.y-m_ego_y,2));
+        if(min_distance>distance)
+        {
+            closest_id = index;
+            min_distance = distance;
+        }
+        index++;
+    }
+    m_closest_id = closest_id;
+
+    ROS_INFO_STREAM("m_closest_id : "<<m_closest_id);
+
+    return m_waypoint_vec[closest_id];
+}
+
+void MissionGenerator::UpdateRviz()
+{
+    // LANE VISUALIZATION
+
     visualization_msgs::MarkerArray lanes;
 
     visualization_msgs::Marker lane_center_1;
@@ -171,6 +233,9 @@ void MissionGenerator::UpdateRvizLane()
     lanes.markers.push_back(lane_center_1_road);
 
     lane_marker_array_msg = lanes;
+
+    // MISSION VISUALIZATION
+
 }
 
 int main(int argc, char** argv)
@@ -180,7 +245,7 @@ int main(int argc, char** argv)
     ros::NodeHandle nh("~");
 
     MissionGenerator mission(nh);
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(30);
 
     while(ros::ok())
     {   

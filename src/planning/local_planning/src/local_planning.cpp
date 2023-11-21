@@ -13,7 +13,7 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
     s_global_route_sub = nh_.subscribe("/adas/planning/global_route", 1000, &LocalPlanning::RouteCallback, this);
     s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &LocalPlanning::OdomCallback, this);
     s_ahead_vehicle_sub = nh_.subscribe("/adas/perception/ahead_vehicle_info", 10, &LocalPlanning::AheadVehicleCallback, this);
-    s_behavior_selected_sub = nh_.subscribe("/adas/planning/behavior_selected", 10, &LocalPlanning::BehaviorCallback, this);
+    s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &LocalPlanning::MissionCallback, this);
 
     Init();
 }
@@ -47,8 +47,8 @@ void LocalPlanning::AheadVehicleCallback(const kucudas_msgs::VehicleInformationC
     mutex_ahead_vehicle_info.unlock();
 }
 
-void LocalPlanning::BehaviorCallback(const std_msgs::Int8ConstPtr &in_behavior_msg){
-    m_behavior = in_behavior_msg->data;
+void LocalPlanning::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){
+    m_mission = in_mission_msg->data;
 }
 
 

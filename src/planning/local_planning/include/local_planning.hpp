@@ -26,11 +26,15 @@
 // Config header
 #include <local_planning_config.hpp>
 
-// Behavior Define
-#define ACC_MODE 0
-#define DC_MODE 1
-#define LC_MODE 2
-#define NO_MODE 3
+// Mission Define
+#define NORMAL_DRIVE 0
+#define STATIC_OBSTACLE_1 1
+#define TRAFFIC_LIGHT 2
+#define ROTARY 3
+#define DYNAMIC_OBSTACLE 4
+#define PARKING 5
+#define TUNNEL 6
+#define STATIC_OBSTACLE_3 7
 
 class LocalPlanning {
 
@@ -42,12 +46,11 @@ public:
     void RouteCallback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg);
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
     void AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg);
-    void BehaviorCallback(const std_msgs::Int8ConstPtr &in_behavior_msg);
+    void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
     void ProcessINI();
     void Run();
     void Publish();
     void UpdateState();
-    void SelectWaypoint();
     void MakeTrajectory();
     geometry_msgs::Point FindClosestPoint();
     int FindLastIndex(geometry_msgs::Point closest_point, double trajectory_length);
@@ -65,7 +68,7 @@ private:
     ros::Subscriber s_global_route_sub;
     ros::Subscriber s_odom_sub;
     ros::Subscriber s_ahead_vehicle_sub;
-    ros::Subscriber s_behavior_selected_sub;
+    ros::Subscriber s_mission_sub;
 
     // Mutex
     std::mutex mutex_route;
@@ -102,7 +105,7 @@ private:
 
     int m_print_count = 0;
 
-    int m_behavior = NO_MODE;
+    int m_mission = NORMAL_DRIVE;
 };
 
 #endif // __LOCAL_PLANNING_HPP__
