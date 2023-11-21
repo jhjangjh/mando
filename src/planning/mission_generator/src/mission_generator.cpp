@@ -10,6 +10,7 @@ MissionGenerator::MissionGenerator(ros::NodeHandle &nh_){
     p_global_route_pub = nh_.advertise<geometry_msgs::PoseArray>("/adas/planning/global_route", 10);
     p_rviz_lane_pub = nh_.advertise<visualization_msgs::MarkerArray>("/hmi/lane", 10);
     p_mission_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/mission", 10);
+    p_rviz_mission_pub = nh_.advertise<jsk_rviz_plugins::OverlayText>("/hmi/mission", 10);
 
     s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &MissionGenerator::OdomCallback, this);
 
@@ -48,6 +49,7 @@ void MissionGenerator::Publish(){
     p_global_route_pub.publish(global_route_msg);
     p_rviz_lane_pub.publish(lane_marker_array_msg);
     p_mission_pub.publish(mission_msg);
+    p_rviz_mission_pub.publish(rviz_mission_msg);
 }
 
 void MissionGenerator::ProcessINI(){
@@ -235,7 +237,41 @@ void MissionGenerator::UpdateRviz()
     lane_marker_array_msg = lanes;
 
     // MISSION VISUALIZATION
+    jsk_rviz_plugins::OverlayText temp_rviz_mission_msg;
+    if(m_mission == STATIC_OBSTACLE_1)
+    {
+        temp_rviz_mission_msg.text = "STATIC_OBSTACLE_1";
+    }
+    else if(m_mission == TRAFFIC_LIGHT)
+    {
+        temp_rviz_mission_msg.text = "TRAFFIC_LIGHT";
+    }
+    else if(m_mission == ROTARY)
+    {
+        temp_rviz_mission_msg.text = "ROTARY";
+    }
+    else if(m_mission == DYNAMIC_OBSTACLE)
+    {
+        temp_rviz_mission_msg.text = "DYNAMIC_OBSTACLE";
+    }
+    else if(m_mission == PARKING)
+    {
+        temp_rviz_mission_msg.text = "PARKING";
+    }
+    else if(m_mission == TUNNEL)
+    {
+        temp_rviz_mission_msg.text = "TUNNEL";
+    }    
+    else if(m_mission == STATIC_OBSTACLE_3)
+    {
+        temp_rviz_mission_msg.text = "STATIC_OBSTACLE_3";
+    }
+    else
+    {
+        temp_rviz_mission_msg.text = "NORMAL_DRIVE";
+    }
 
+    rviz_mission_msg = temp_rviz_mission_msg;
 }
 
 int main(int argc, char** argv)

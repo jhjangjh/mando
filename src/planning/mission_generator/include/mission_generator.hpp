@@ -19,6 +19,7 @@
 #include <std_msgs/Int8.h>
 #include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/Odometry.h>
+#include <jsk_rviz_plugins/OverlayText.h>
 
 // Visualize header
 #include <visualization_msgs/MarkerArray.h>
@@ -60,6 +61,7 @@ private:
     ros::Publisher p_global_route_pub;
     ros::Publisher p_rviz_lane_pub;
     ros::Publisher p_mission_pub;
+    ros::Publisher p_rviz_mission_pub;
 
     // Subscriber
     ros::Subscriber s_odom_sub;
@@ -71,6 +73,7 @@ private:
     geometry_msgs::PoseArray global_route_msg;
     visualization_msgs::MarkerArray lane_marker_array_msg;
     std_msgs::Int8 mission_msg;
+    jsk_rviz_plugins::OverlayText rviz_mission_msg;
 
     // Environments
     IniParser v_ini_parser_;
