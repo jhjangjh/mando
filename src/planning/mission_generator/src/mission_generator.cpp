@@ -132,12 +132,86 @@ void MissionGenerator::MakeGlobalRoute()
 }
 
 void MissionGenerator::GenerateMission(){
-    if(m_closest_id<3000)
+    if(m_closest_id<350)
     {
         m_mission = NORMAL_DRIVE;
         mission_msg.data = m_mission;
     }
-    // ROS_INFO_STREAM("m_mission : "<< m_mission);
+    else if(m_closest_id<470)
+    { 
+        m_mission = STATIC_OBSTACLE_1;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<515)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<600)
+    { 
+        m_mission = TRAFFIC_LIGHT;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<700)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<970)
+    { 
+        m_mission = ROTARY;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<1100)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    } 
+    else if(m_closest_id<1170)
+    { 
+        m_mission = TRAFFIC_LIGHT;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<1200)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<1280)
+    { 
+        m_mission = DYNAMIC_OBSTACLE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<1420)
+    { 
+        m_mission = PARKING;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<1590)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<1990)
+    { 
+        m_mission = TUNNEL;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<2070)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<2270)
+    { 
+        m_mission = STATIC_OBSTACLE_3;
+        mission_msg.data = m_mission;
+    }
+    else
+    {
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }
 }
 
 void MissionGenerator::UpdateState()
