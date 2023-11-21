@@ -71,7 +71,7 @@ private:
     ros::Subscriber s_odom_sub;
     ros::Subscriber s_ahead_vehicle_sub;
     ros::Subscriber s_mission_sub;
-    ros::Subscriber s_traffic_light;    // subscribe traffic light signal
+    ros::Subscriber s_traffic_light_sub;    // subscribe traffic light signal
 
     // Mutex
     std::mutex mutex_route;
@@ -109,6 +109,8 @@ private:
     int m_print_count = 0;
 
     int m_mission = NORMAL_DRIVE;
+
+    bool is_red_light = false;      // subscribing traffic light signal     
 };
 
 #endif // __LOCAL_PLANNING_HPP__
