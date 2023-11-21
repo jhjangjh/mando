@@ -137,7 +137,7 @@ void MissionGenerator::GenerateMission(){
         m_mission = NORMAL_DRIVE;
         mission_msg.data = m_mission;
     }
-    ROS_INFO_STREAM("m_mission : "<< m_mission);
+    // ROS_INFO_STREAM("m_mission : "<< m_mission);
 }
 
 void MissionGenerator::UpdateState()
