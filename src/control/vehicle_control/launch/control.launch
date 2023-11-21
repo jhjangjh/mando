@@ -1,0 +1,6 @@
+<launch>
+
+    <node pkg='vehicle_control' name='vehicle_control' type='vehicle_control' output = 'screen'>
+    </node>  
+
+</launch>

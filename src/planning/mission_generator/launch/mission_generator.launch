@@ -1,0 +1,5 @@
+<launch>
+    <node pkg='mission_generator' name='mission_generator' type='mission_generator' output = 'screen'>
+    </node>  
+
+</launch>
