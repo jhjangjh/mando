@@ -60,7 +60,6 @@ void LocalPlanning::Run(){
     ProcessINI();
     if(get_global_route)
     {
-        SelectWaypoint();
         UpdateState();
         MakeTrajectory();
         UpdateRvizTrajectory(m_trajectory);
