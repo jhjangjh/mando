@@ -1,9 +1,9 @@
-#ifndef __GLOBAL_PLANNING_CONFIG_HPP__
-#define __GLOBAL_PLANNING_CONFIG_HPP__
+#ifndef __MISSION_GENERATOR_CONFIG_HPP__
+#define __MISSION_GENERATOR_CONFIG_HPP__
 #pragma once
 
 typedef struct {
 
-} GlobalPlanningParameters;
+} MissionGeneratorParameters;
 
-#endif  // __GLOBAL_PLANNING_CONFIG_HPP__
+#endif  // __MISSION_GENERATOR_CONFIG_HPP__

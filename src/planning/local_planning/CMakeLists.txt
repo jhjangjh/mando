@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   visualization_msgs
+  kucudas_msgs
 )
 
 ## System dependencies are found with CMake's conventions

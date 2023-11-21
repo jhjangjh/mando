@@ -39,8 +39,7 @@ public:
     ~LocalPlanning();
 
     void Init();
-    void RouteCallback1(const geometry_msgs::PoseArrayConstPtr &in_route1_msg);
-    void RouteCallback2(const geometry_msgs::PoseArrayConstPtr &in_route2_msg);
+    void RouteCallback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg);
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
     void AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg);
     void BehaviorCallback(const std_msgs::Int8ConstPtr &in_behavior_msg);
@@ -63,15 +62,13 @@ private:
     ros::Publisher p_rviz_trajectory_pub;
 
     // Subscriber
-    ros::Subscriber s_global_route1_sub;
-    ros::Subscriber s_global_route2_sub;
+    ros::Subscriber s_global_route_sub;
     ros::Subscriber s_odom_sub;
     ros::Subscriber s_ahead_vehicle_sub;
     ros::Subscriber s_behavior_selected_sub;
 
     // Mutex
-    std::mutex mutex_route1;
-    std::mutex mutex_route2;
+    std::mutex mutex_route;
     std::mutex mutex_odom;
     std::mutex mutex_ahead_vehicle_info;
 
@@ -85,9 +82,6 @@ private:
 
     // Variables
     std::vector<geometry_msgs::Point> m_waypoint_vec;
-
-    std::vector<geometry_msgs::Point> m_lane1_vec;
-    std::vector<geometry_msgs::Point> m_lane2_vec;
 
     nav_msgs::Odometry m_odom;
     kucudas_msgs::VehicleInformation m_ahead_vehicle_info;
@@ -104,8 +98,7 @@ private:
     kucudas_msgs::Trajectory m_trajectory;
     visualization_msgs::MarkerArray m_trajectory_marker_array;
 
-    bool get_global_route1 = false;
-    bool get_global_route2 = false;
+    bool get_global_route = false;
 
     int m_print_count = 0;
 

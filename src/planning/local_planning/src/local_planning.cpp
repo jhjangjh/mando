@@ -10,8 +10,7 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
     p_trajectory_pub = nh_.advertise<kucudas_msgs::Trajectory>("/trajectory", 100);
     p_rviz_trajectory_pub = nh_.advertise<visualization_msgs::MarkerArray>("/hmi/trajectory", 10);
 
-    s_global_route1_sub = nh_.subscribe("/adas/planning/global_route_1", 1000, &LocalPlanning::RouteCallback1, this);
-    s_global_route2_sub = nh_.subscribe("/adas/planning/global_route_2", 1000, &LocalPlanning::RouteCallback2, this);
+    s_global_route_sub = nh_.subscribe("/adas/planning/global_route", 1000, &LocalPlanning::RouteCallback, this);
     s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &LocalPlanning::OdomCallback, this);
     s_ahead_vehicle_sub = nh_.subscribe("/adas/perception/ahead_vehicle_info", 10, &LocalPlanning::AheadVehicleCallback, this);
     s_behavior_selected_sub = nh_.subscribe("/adas/planning/behavior_selected", 10, &LocalPlanning::BehaviorCallback, this);
@@ -21,32 +20,18 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
 
 LocalPlanning::~LocalPlanning(){}
 
-void LocalPlanning::RouteCallback1(const geometry_msgs::PoseArrayConstPtr &in_route1_msg)
+void LocalPlanning::RouteCallback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg)
 {
-    mutex_route1.lock();
-    if(m_lane1_vec.size() == 0)
+    mutex_route.lock();
+    if(m_waypoint_vec.size() == 0)
     {
         for(auto waypoint : in_route1_msg->poses)
         {
-            m_lane1_vec.push_back(waypoint.position);
+            m_waypoint_vec.push_back(waypoint.position);
         }
-        get_global_route1 = true;
+        get_global_route = true;
     }
-    mutex_route1.unlock();
-}
-
-void LocalPlanning::RouteCallback2(const geometry_msgs::PoseArrayConstPtr &in_route2_msg)
-{
-    mutex_route2.lock();
-    if(m_lane2_vec.size() == 0)
-    {
-        for(auto waypoint : in_route2_msg->poses)
-        {
-            m_lane2_vec.push_back(waypoint.position);
-        }
-        get_global_route2 = true;
-    }
-    mutex_route2.unlock();
+    mutex_route.unlock();
 }
 
 void LocalPlanning::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
@@ -73,7 +58,7 @@ void LocalPlanning::Init(){
 
 void LocalPlanning::Run(){
     ProcessINI();
-    if(get_global_route1 && get_global_route2)
+    if(get_global_route)
     {
         SelectWaypoint();
         UpdateState();
@@ -109,11 +94,6 @@ void LocalPlanning::ProcessINI(){
                                     local_planning_params_.acc_active_distance);
         ROS_WARN("[Local Planning] Ini file is updated!\n");
     }
-}
-
-void LocalPlanning::SelectWaypoint(){
-    // For Test ACC
-    m_waypoint_vec = m_lane2_vec;
 }
 
 void LocalPlanning::UpdateState()
