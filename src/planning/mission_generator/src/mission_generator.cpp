@@ -142,12 +142,12 @@ void MissionGenerator::GenerateMission(){
         m_mission = STATIC_OBSTACLE_1;
         mission_msg.data = m_mission;
     }
-    else if(m_closest_id<515)
+    else if(m_closest_id<540)
     { 
         m_mission = NORMAL_DRIVE;
         mission_msg.data = m_mission;
     }
-    else if(m_closest_id<600)
+    else if(m_closest_id<563)
     { 
         m_mission = TRAFFIC_LIGHT;
         mission_msg.data = m_mission;
@@ -162,12 +162,12 @@ void MissionGenerator::GenerateMission(){
         m_mission = ROTARY;
         mission_msg.data = m_mission;
     }          
-    else if(m_closest_id<1100)
+    else if(m_closest_id<1120)
     { 
         m_mission = NORMAL_DRIVE;
         mission_msg.data = m_mission;
     } 
-    else if(m_closest_id<1170)
+    else if(m_closest_id<1132)
     { 
         m_mission = TRAFFIC_LIGHT;
         mission_msg.data = m_mission;
@@ -314,35 +314,35 @@ void MissionGenerator::UpdateRviz()
     jsk_rviz_plugins::OverlayText temp_rviz_mission_msg;
     if(m_mission == STATIC_OBSTACLE_1)
     {
-        temp_rviz_mission_msg.text = "STATIC_OBSTACLE_1";
+        temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_1]";
     }
     else if(m_mission == TRAFFIC_LIGHT)
     {
-        temp_rviz_mission_msg.text = "TRAFFIC_LIGHT";
+        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT]";
     }
     else if(m_mission == ROTARY)
     {
-        temp_rviz_mission_msg.text = "ROTARY";
+        temp_rviz_mission_msg.text = "[ROTARY]";
     }
     else if(m_mission == DYNAMIC_OBSTACLE)
     {
-        temp_rviz_mission_msg.text = "DYNAMIC_OBSTACLE";
+        temp_rviz_mission_msg.text = "[DYNAMIC_OBSTACLE]";
     }
     else if(m_mission == PARKING)
     {
-        temp_rviz_mission_msg.text = "PARKING";
+        temp_rviz_mission_msg.text = "[PARKING]";
     }
     else if(m_mission == TUNNEL)
     {
-        temp_rviz_mission_msg.text = "TUNNEL";
+        temp_rviz_mission_msg.text = "[TUNNEL]";
     }    
     else if(m_mission == STATIC_OBSTACLE_3)
     {
-        temp_rviz_mission_msg.text = "STATIC_OBSTACLE_3";
+        temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_3]";
     }
     else
     {
-        temp_rviz_mission_msg.text = "NORMAL_DRIVE";
+        temp_rviz_mission_msg.text = "[NORMAL_DRIVE]";
     }
 
     rviz_mission_msg = temp_rviz_mission_msg;

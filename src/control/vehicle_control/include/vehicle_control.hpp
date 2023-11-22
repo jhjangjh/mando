@@ -19,6 +19,7 @@
 // Message header
 #include <nav_msgs/Odometry.h>
 #include <kucudas_msgs/Trajectory.h>
+#include <std_msgs/Float32.h>
 
 // Carla header
 #include <carla_msgs/CarlaEgoVehicleControl.h>
@@ -48,9 +49,17 @@ public:
     double GetCrossTrackError(kucudas_msgs::TrajectoryPoint target_point);
     double GetSteeringAngle(kucudas_msgs::TrajectoryPoint target_point);
     void SetControlCmd(double pid_speed_error, double steering_angle);
+    void UpdateControlState();
+
 private:
     // Publisher
     ros::Publisher p_control_cmd_pub;
+    ros::Publisher p_current_speed_pub;
+    ros::Publisher p_target_speed_pub;
+    ros::Publisher p_speed_error_pub;
+    ros::Publisher p_cross_track_error_pub;
+    ros::Publisher p_yaw_error_pub;
+
 
     // Subscriber
     ros::Subscriber s_trajectory_sub;
@@ -62,6 +71,11 @@ private:
 
     // Messages
     carla_msgs::CarlaEgoVehicleControl m_control_msg;
+    std_msgs::Float32 m_current_speed_msg;
+    std_msgs::Float32 m_target_speed_msg;
+    std_msgs::Float32 m_speed_error_msg;
+    std_msgs::Float32 m_cross_track_error_msg;
+    std_msgs::Float32 m_yaw_error_msg;
 
     // Environments
     IniParser v_ini_parser_;

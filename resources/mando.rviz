@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /OverlayText1
       Splitter Ratio: 0.5
     Tree Height: 719
   - Class: rviz/Selection
@@ -65,7 +64,7 @@ Visualization Manager:
       Class: jsk_rviz_plugin/OverlayText
       Enabled: true
       Foreground Alpha: 0.800000011920929
-      Foreground Color: 25; 255; 240
+      Foreground Color: 234; 32; 214
       Invert Shadow: false
       Name: OverlayText
       Overtake BG Color Properties: false
@@ -75,11 +74,132 @@ Visualization Manager:
       Value: true
       font: DejaVu Sans Mono
       height: 500
-      left: 100
+      left: 80
       line width: 2
-      text size: 30
-      top: 100
+      text size: 25
+      top: 80
       width: 500
+    - Buffer length: 100
+      Class: jsk_rviz_plugin/Plotter2D
+      Enabled: true
+      Name: Speed_error
+      Show Value: true
+      Topic: /hmi/speed_error
+      Value: true
+      auto color change: false
+      auto scale: true
+      background color: 0; 0; 0
+      backround alpha: 0
+      border: false
+      foreground alpha: 0.699999988079071
+      foreground color: 242; 57; 57
+      height: 128
+      left: 200
+      linewidth: 1
+      max color: 255; 0; 0
+      max value: 1
+      min value: -1
+      show caption: true
+      text size: 18
+      top: 300
+      update interval: 0.03999999910593033
+      width: 150
+    - Class: jsk_rviz_plugin/PieChart
+      Enabled: true
+      Name: CTE
+      Topic: /hmi/cross_track_error
+      Value: true
+      auto color change: false
+      background color: 0; 0; 0
+      backround alpha: 0
+      clockwise rotate direction: false
+      foreground alpha: 0.699999988079071
+      foreground alpha 2: 0.4000000059604645
+      foreground color: 188; 87; 223
+      left: 128
+      max color: 255; 0; 0
+      max color change threthold: 0
+      max value: 1
+      med color: 255; 0; 0
+      med color change threthold: 0
+      min value: 0
+      show caption: true
+      size: 128
+      text size: 14
+      top: 540
+    - Buffer length: 100
+      Class: jsk_rviz_plugin/Plotter2D
+      Enabled: true
+      Name: Current
+      Show Value: true
+      Topic: /hmi/current_speed
+      Value: true
+      auto color change: false
+      auto scale: true
+      background color: 0; 0; 0
+      backround alpha: 0
+      border: false
+      foreground alpha: 0.699999988079071
+      foreground color: 25; 255; 240
+      height: 128
+      left: 100
+      linewidth: 1
+      max color: 255; 0; 0
+      max value: 1
+      min value: -1
+      show caption: true
+      text size: 18
+      top: 128
+      update interval: 0.03999999910593033
+      width: 150
+    - Buffer length: 100
+      Class: jsk_rviz_plugin/Plotter2D
+      Enabled: true
+      Name: Target
+      Show Value: true
+      Topic: /hmi/target_speed
+      Value: true
+      auto color change: false
+      auto scale: true
+      background color: 0; 0; 0
+      backround alpha: 0
+      border: false
+      foreground alpha: 0.699999988079071
+      foreground color: 252; 233; 79
+      height: 128
+      left: 300
+      linewidth: 1
+      max color: 255; 0; 0
+      max value: 1
+      min value: -1
+      show caption: true
+      text size: 18
+      top: 128
+      update interval: 0.03999999910593033
+      width: 150
+    - Class: jsk_rviz_plugin/PieChart
+      Enabled: true
+      Name: Yaw error
+      Topic: /hmi/yaw_error
+      Value: true
+      auto color change: false
+      background color: 0; 0; 0
+      backround alpha: 0
+      clockwise rotate direction: false
+      foreground alpha: 0.699999988079071
+      foreground alpha 2: 0.4000000059604645
+      foreground color: 165; 230; 60
+      left: 320
+      max color: 255; 0; 0
+      max color change threthold: 0
+      max value: 1
+      med color: 255; 0; 0
+      med color change threthold: 0
+      min value: 0
+      show caption: true
+      size: 128
+      text size: 14
+      top: 540
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -108,7 +228,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 311.23309326171875
+      Distance: 293.6896057128906
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -116,9 +236,9 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 118.67021179199219
-        Y: 4.320178985595703
-        Z: -0.11718587577342987
+        X: 120.06556701660156
+        Y: 3.158341407775879
+        Z: -0.11860372126102448
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
