@@ -8,6 +8,11 @@ VehicleControl::VehicleControl(ros::NodeHandle &nh_){
     v_ini_parser_.Init((dir+ini_dir).c_str());
 
     p_control_cmd_pub = nh_.advertise<carla_msgs::CarlaEgoVehicleControl>("/carla/ego_vehicle/vehicle_control_cmd", 100);
+    p_current_speed_pub = nh_.advertise<std_msgs::Float32>("/hmi/current_speed", 100);
+    p_target_speed_pub = nh_.advertise<std_msgs::Float32>("/hmi/target_speed", 100);
+    p_speed_error_pub = nh_.advertise<std_msgs::Float32>("/hmi/speed_error", 100);
+    p_cross_track_error_pub = nh_.advertise<std_msgs::Float32>("/hmi/cross_track_error", 100);
+    p_yaw_error_pub = nh_.advertise<std_msgs::Float32>("/hmi/yaw_error", 100);
 
     s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 1, &VehicleControl::OdomCallback, this);
     s_trajectory_sub = nh_.subscribe("/trajectory",1, &VehicleControl::TrajectoryCallback, this);
@@ -57,6 +62,8 @@ void VehicleControl::Run(){
         steering_angle = PurePursuit(m_target_point);
 
         SetControlCmd(pid_error, steering_angle);
+        UpdateControlState();
+
         if(m_print_count++ % 10 == 0)
         {
             ROS_INFO_STREAM("Vehicle Control is running...");
@@ -71,6 +78,11 @@ void VehicleControl::Run(){
 
 void VehicleControl::Publish(){
     p_control_cmd_pub.publish(m_control_msg);
+    p_current_speed_pub.publish(m_current_speed_msg);
+    p_target_speed_pub.publish(m_target_speed_msg);
+    p_speed_error_pub.publish(m_speed_error_msg);
+    p_cross_track_error_pub.publish(m_cross_track_error_msg);
+    p_yaw_error_pub.publish(m_yaw_error_msg);
 }
 
 void VehicleControl::ProcessINI(){
@@ -153,6 +165,11 @@ void VehicleControl::SetControlCmd(double pid_speed_error, double steering_angle
     {
         throttle = pid_speed_error;
         brake = 0;
+    }
+    else if(pid_speed_error>-1)
+    {
+        throttle = 0;
+        brake = -pid_speed_error;
     }
     else
     {
@@ -257,6 +274,23 @@ double VehicleControl::GetSteeringAngle(kucudas_msgs::TrajectoryPoint target_poi
     steering_angle = -atan2(2 * wheel_base * m_target_lateral_error,pow(lookahead_point_distance,2));
     return steering_angle;
 }
+
+void VehicleControl::UpdateControlState()
+{
+    m_current_speed_msg.data = m_velocity;
+    if(longitudinal_control_params_.use_manual_desired_velocity)
+    {
+        m_target_speed_msg.data = longitudinal_control_params_.manual_desired_velocity;    
+    }
+    else
+    {
+        m_target_speed_msg.data = m_target_point.speed;    
+    }
+    m_speed_error_msg.data = m_current_speed_msg.data - m_target_speed_msg.data;
+    m_cross_track_error_msg.data = m_target_lateral_error;
+    m_yaw_error_msg.data = m_target_point.yaw - m_yaw;
+}
+
 int main(int argc, char** argv)
 {
     std::string node_name = "vehicle_control";
