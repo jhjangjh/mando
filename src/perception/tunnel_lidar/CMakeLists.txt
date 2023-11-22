@@ -108,7 +108,7 @@ find_package(PCL REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES tunnel_lidar
-#  CATKIN_DEPENDS carla_msgs kucudas_msgs pcl_ros roscpp sensor_msgs std_msgs
+ CATKIN_DEPENDS carla_msgs kucudas_msgs pcl_ros roscpp sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 

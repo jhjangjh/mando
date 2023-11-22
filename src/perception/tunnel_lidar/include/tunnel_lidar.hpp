@@ -62,10 +62,15 @@ public:
     void Publish();
     void UpdateRviz();
 
-    void LidarCallback(const sensor_msgs::PointCloud2::ConstPtr &in_lidar_msg);
+    void LidarCallback(const sensor_msgs::PointCloud2ConstPtr &in_lidar_msg);
+
+    double GRTheta(double x, double y);
+    void VoxelizeData();
+    void SetROI();
 
 private:
     // Publisher
+    ros::Publisher p_roi_lidar_pub;
 
     // Subscriber
     ros::Subscriber s_lidar_sub;
@@ -82,6 +87,15 @@ private:
     TunnelLidarParameters tunnel_lidar_params_;
 
     // Variables
+    pcl::PointCloud<pcl::PointXYZ>::Ptr m_cloud_raw_ptr;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr m_voxelized_ptr;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr m_cluster_ptr;
+
+    sensor_msgs::PointCloud2 m_output_voxel;
+    pcl::PCLPointCloud2 m_cloud_p;
+    sensor_msgs::PointCloud2 m_output_gr;
+    pcl::PointCloud<pcl::PointXYZ> m_laser_cloud_in;
+    sensor_msgs::PointCloud2 m_output_roi;
 
     int m_mission = NORMAL_DRIVE;
     int m_print_count = 0;

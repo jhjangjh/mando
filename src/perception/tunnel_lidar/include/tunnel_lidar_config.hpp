@@ -3,7 +3,9 @@
 #pragma once
 
 typedef struct {
-
+    double voxelsize;
+    double roi_distance;
+    double offset;
 } TunnelLidarParameters;
 
 #endif  // __TUNNEL_LIDAR_CONFIG_HPP__
