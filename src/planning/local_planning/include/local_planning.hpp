@@ -110,7 +110,7 @@ private:
 
     int m_mission = NORMAL_DRIVE;
 
-    bool is_red_light = false;      // subscribing traffic light signal     
+    bool traffic_stop = false;      // subscribing traffic light signal     
 };
 
 #endif // __LOCAL_PLANNING_HPP__

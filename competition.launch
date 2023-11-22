@@ -1,0 +1,20 @@
+<launch>
+    <!-- Perception -->
+    <node pkg='object_detection' name='object_detection' type='object_detection'>
+    </node>  
+
+    <!-- Planning -->
+    <node pkg='mission_generator' name='mission_generator' type='mission_generator'>
+    </node>  
+
+    <node pkg='local_planning' name='local_planning' type='local_planning'>
+    </node>  
+    
+    <!-- Control -->
+    <node pkg='vehicle_control' name='vehicle_control' type='vehicle_control'>
+    </node>  
+
+
+    <!-- Scenario --> 
+
+</launch>

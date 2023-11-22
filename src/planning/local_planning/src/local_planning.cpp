@@ -53,8 +53,8 @@ void LocalPlanning::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg
 }
 
 void LocalPlanning::TrafficLightCallback(const std_msgs::Bool &traffic_light_msg){
-    // if is_red_light == True  STOP!!!!!!  (case : Red, Yellow)
-    is_red_light = traffic_light_msg.data;
+    // if traffic_stop == True => STOP!!!!!!  (case : Red, Yellow)
+    traffic_stop = traffic_light_msg.data;
 }
 
 
@@ -292,6 +292,11 @@ double LocalPlanning::SpeedProfiling(double curvature)
                 speed = curv_speed;
             }                    
         }
+    }
+
+    if(m_mission == TRAFFIC_LIGHT && traffic_stop)
+    {
+        speed = 0.;
     }
 
     return speed*3.6;
