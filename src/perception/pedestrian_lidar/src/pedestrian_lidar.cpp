@@ -73,6 +73,16 @@ void PedestrianLidar::ProcessINI(){
                                     pedestrian_lidar_params_.offset);
         v_ini_parser_.ParseConfig("pedestrian_lidar", "front_distance",
                                     pedestrian_lidar_params_.front_distance);
+        v_ini_parser_.ParseConfig("pedestrian_lidar", "max_x_roi",
+                                    pedestrian_lidar_params_.max_x_roi);
+        v_ini_parser_.ParseConfig("pedestrian_lidar", "max_y_roi",
+                                    pedestrian_lidar_params_.max_y_roi);
+        v_ini_parser_.ParseConfig("pedestrian_lidar", "min_y_roi",
+                                    pedestrian_lidar_params_.min_y_roi);
+        v_ini_parser_.ParseConfig("pedestrian_lidar", "max_z_roi",
+                                    pedestrian_lidar_params_.max_z_roi);
+        v_ini_parser_.ParseConfig("pedestrian_lidar", "min_z_roi",
+                                    pedestrian_lidar_params_.min_z_roi);
 
         ROS_WARN("[Pedestrian Lidar] Ini file is updated!\n");
     }
@@ -110,21 +120,21 @@ void PedestrianLidar::SetROI()
     pcl::PassThrough<pcl::PointXYZ> xfilter;
     xfilter.setInputCloud(m_voxelized_ptr); // Assuming m_voxelized_ptr is your input cloud
     xfilter.setFilterFieldName("x");
-    xfilter.setFilterLimits(filter_limit,FLT_MAX);
+    xfilter.setFilterLimits(filter_limit,pedestrian_lidar_params_.max_x_roi);
     xfilter.filter(*m_voxelized_ptr); // Update the filtered points in m_voxelized_ptr
 
     // Create a PassThrough filter for y-axis
     pcl::PassThrough<pcl::PointXYZ> yfilter;
     yfilter.setInputCloud(m_voxelized_ptr); // Assuming m_voxelized_ptr is your input cloud
     yfilter.setFilterFieldName("y");
-    yfilter.setFilterLimits(-FLT_MAX,filter_limit);
+    yfilter.setFilterLimits(pedestrian_lidar_params_.min_y_roi, pedestrian_lidar_params_.max_y_roi);
     yfilter.filter(*m_voxelized_ptr); // Update the filtered points in m_voxelized_ptr
 
     // Create a PassThrough filter for z-axis
     pcl::PassThrough<pcl::PointXYZ> zfilter;
     zfilter.setInputCloud(m_voxelized_ptr); // Assuming m_voxelized_ptr is your input cloud
     zfilter.setFilterFieldName("z");
-    zfilter.setFilterLimits(0.1,1.);
+    zfilter.setFilterLimits(pedestrian_lidar_params_.min_z_roi, pedestrian_lidar_params_.max_z_roi);
     zfilter.filter(*m_voxelized_ptr); // Update the filtered points in m_voxelized_ptr
 
     pcl::toPCLPointCloud2(*m_voxelized_ptr, m_cloud_p);
@@ -137,7 +147,7 @@ void PedestrianLidar::SetROI()
     for(unsigned int j=0; j<m_laser_cloud_in.points.size(); j++)
     {
 
-        if(GRTheta(m_laser_cloud_in.points[j].x , m_laser_cloud_in.points[j].y) < 50)
+        if(GRTheta(m_laser_cloud_in.points[j].x , m_laser_cloud_in.points[j].y) > 50)
         {
             m_laser_cloud_in.points[j].x = -10.;
             m_laser_cloud_in.points[j].y = 0;
