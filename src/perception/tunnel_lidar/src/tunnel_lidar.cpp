@@ -86,45 +86,57 @@ void TunnelLidar::VoxelizeData()
 
 void TunnelLidar::SetROI()
 {
+
+    float filter_limit = 0.0;
+
+    // Create a PassThrough filter for x-axis
+    pcl::PassThrough<pcl::PointXYZ> xfilter;
+    xfilter.setInputCloud(m_voxelized_ptr); // Assuming m_voxelized_ptr is your input cloud
+    xfilter.setFilterFieldName("x");
+    xfilter.setFilterLimits(filter_limit,FLT_MAX);
+    xfilter.filter(*m_voxelized_ptr); // Update the filtered points in m_voxelized_ptr
+
+    // Create a PassThrough filter for y-axis
+    pcl::PassThrough<pcl::PointXYZ> yfilter;
+    yfilter.setInputCloud(m_voxelized_ptr); // Assuming m_voxelized_ptr is your input cloud
+    yfilter.setFilterFieldName("y");
+    yfilter.setFilterLimits(-FLT_MAX,filter_limit);
+    yfilter.filter(*m_voxelized_ptr); // Update the filtered points in m_voxelized_ptr
+
+    // Create a PassThrough filter for z-axis
+    pcl::PassThrough<pcl::PointXYZ> zfilter;
+    zfilter.setInputCloud(m_voxelized_ptr); // Assuming m_voxelized_ptr is your input cloud
+    zfilter.setFilterFieldName("z");
+    zfilter.setFilterLimits(0.1,1.);
+    zfilter.filter(*m_voxelized_ptr); // Update the filtered points in m_voxelized_ptr
+
     pcl::toPCLPointCloud2(*m_voxelized_ptr, m_cloud_p);
     pcl_conversions::fromPCL(m_cloud_p, m_output_gr);
     m_output_gr.header.frame_id = "ego_vehicle/lidar";
 
     pcl::fromROSMsg(m_output_gr,m_laser_cloud_in);
-        
+
+ 
     for(unsigned int j=0; j<m_laser_cloud_in.points.size(); j++)
     {
-        if(m_laser_cloud_in.points[j].x < 0 || m_laser_cloud_in.points[j].y > 0)
-        {
-            m_laser_cloud_in.points[j].x = 0;
-            m_laser_cloud_in.points[j].y = 0;
-            m_laser_cloud_in.points[j].z = 0;
-        }
-
-        if(m_laser_cloud_in.points[j].z > 2 || m_laser_cloud_in.points[j].z < 0.2)
-        {
-            m_laser_cloud_in.points[j].x = 0;
-            m_laser_cloud_in.points[j].y = 0;
-            m_laser_cloud_in.points[j].z = 0;
-        }
 
         if(GRTheta(m_laser_cloud_in.points[j].x , m_laser_cloud_in.points[j].y) < 30)
         {
-            m_laser_cloud_in.points[j].x = 0;
+            m_laser_cloud_in.points[j].x = -10.;
             m_laser_cloud_in.points[j].y = 0;
             m_laser_cloud_in.points[j].z = 0;
         }
 
         if(sqrt(pow(m_laser_cloud_in.points[j].x,2)+pow(m_laser_cloud_in.points[j].y,2)) > tunnel_lidar_params_.roi_distance)
         {
-            m_laser_cloud_in.points[j].x = 0;
+            m_laser_cloud_in.points[j].x = -10.;
             m_laser_cloud_in.points[j].y = 0;
             m_laser_cloud_in.points[j].z = 0;
         }
 
         if(m_laser_cloud_in.points[j].x < 0.1 && m_laser_cloud_in.points[j].y < 0.1 && m_laser_cloud_in.points[j].z < 0.1)
         {
-            m_laser_cloud_in.points[j].x = 0;
+            m_laser_cloud_in.points[j].x = -10.;
             m_laser_cloud_in.points[j].y = 0;
             m_laser_cloud_in.points[j].z = 0;
         }
@@ -139,6 +151,15 @@ void TunnelLidar::SetROI()
     {
         m_cluster_ptr = m_laser_cloud_in.makeShared();
     }
+
+
+    // Create a PassThrough filter for x-axis
+    pcl::PassThrough<pcl::PointXYZ> remove_filter;
+    remove_filter.setInputCloud(m_cluster_ptr); // Assuming m_voxelized_ptr is your input cloud
+    remove_filter.setFilterFieldName("x");
+    remove_filter.setFilterLimits(-5.,FLT_MAX);
+    remove_filter.filter(*m_cluster_ptr); // Update the filtered points in m_voxelized_ptr
+
 
     pcl::PCLPointCloud2 temp;
     pcl::toPCLPointCloud2(*m_cluster_ptr,temp);
