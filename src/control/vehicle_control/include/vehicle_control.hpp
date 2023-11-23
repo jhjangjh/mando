@@ -15,6 +15,7 @@
 
 // Utility header
 #include <util/ini_parser.hpp>
+#include <util/transForm.hpp>
 
 // Message header
 #include <nav_msgs/Odometry.h>
@@ -46,6 +47,7 @@ public:
     ~VehicleControl();
 
     void Init();
+    void ReadCSVFile();
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
     void TrajectoryCallback(const kucudas_msgs::TrajectoryConstPtr &in_trajectory_msg);
     void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
@@ -117,6 +119,8 @@ private:
     int m_last_id;
 
     kucudas_msgs::Trajectory m_trajectory;
+
+    std::vector<geometry_msgs::Point> m_parking_waypoint_vec;
 
     double pid_dt = (1.0)/100;
 
