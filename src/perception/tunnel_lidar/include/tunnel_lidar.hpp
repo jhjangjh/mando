@@ -16,6 +16,7 @@
 
 // Message header
 #include <sensor_msgs/PointCloud2.h>
+#include <std_msgs/Int8.h>
 
 // Visualize header
 #include <visualization_msgs/MarkerArray.h>
@@ -63,6 +64,7 @@ public:
     void UpdateRviz();
 
     void LidarCallback(const sensor_msgs::PointCloud2ConstPtr &in_lidar_msg);
+    void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
 
     double GRTheta(double x, double y);
     void VoxelizeData();
@@ -77,6 +79,7 @@ private:
 
     // Subscriber
     ros::Subscriber s_lidar_sub;
+    ros::Subscriber s_mission_sub;
 
     // Mutex
     std::mutex mutex_lidar;

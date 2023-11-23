@@ -12,6 +12,7 @@ TunnelLidar::TunnelLidar(ros::NodeHandle &nh_){
     p_target_point_rviz_pub = nh_.advertise<visualization_msgs::Marker>("/hmi/tunnel_target_point",100);
     
     s_lidar_sub = nh_.subscribe("/carla/ego_vehicle/lidar", 10, &TunnelLidar::LidarCallback, this);
+    s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &TunnelLidar::MissionCallback, this);
 
     Init();
 }
@@ -24,6 +25,10 @@ void TunnelLidar::LidarCallback(const sensor_msgs::PointCloud2ConstPtr &in_lidar
     mutex_lidar.unlock();
 }
 
+void TunnelLidar::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){
+    m_mission = in_mission_msg->data;
+}
+
 void TunnelLidar::Init(){
     ProcessINI();
 
@@ -34,13 +39,16 @@ void TunnelLidar::Init(){
 
 void TunnelLidar::Run(){
     ProcessINI();
-    VoxelizeData();
-    SetROI();
-    MakeTargetPoint();
-    UpdateRviz();
-    if(m_print_count++ % 10 == 0)
+    if(m_mission == TUNNEL)
     {
-        ROS_INFO_STREAM("Tunnel Lidar is running...");
+        VoxelizeData();
+        SetROI();
+        MakeTargetPoint();
+        UpdateRviz();
+        if(m_print_count++ % 10 == 0)
+        {
+            ROS_INFO_STREAM("Tunnel Lidar is running...");
+        }
     }
 
 }
