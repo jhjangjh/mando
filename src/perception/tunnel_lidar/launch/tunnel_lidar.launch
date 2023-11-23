@@ -1,0 +1,6 @@
+<launch>
+
+    <node pkg='tunnel_lidar' name='tunnel_lidar' type='tunnel_lidar' output = 'screen'>
+    </node>  
+
+</launch>
