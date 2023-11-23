@@ -20,9 +20,7 @@ TunnelLidar::TunnelLidar(ros::NodeHandle &nh_){
 TunnelLidar::~TunnelLidar(){}
 
 void TunnelLidar::LidarCallback(const sensor_msgs::PointCloud2ConstPtr &in_lidar_msg){
-    mutex_lidar.lock();
     pcl::fromROSMsg(*in_lidar_msg,*m_cloud_raw_ptr);
-    mutex_lidar.unlock();
 }
 
 void TunnelLidar::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){

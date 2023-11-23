@@ -6,7 +6,6 @@
 #include <string>
 #include <stdlib.h>
 #include <fstream>
-#include <mutex>
 
 // ROS header
 #include <ros/ros.h>
@@ -44,7 +43,9 @@ public:
     ~LocalPlanning();
 
     void Init();
-    void RouteCallback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg);
+    void Route1Callback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg);
+    void Route2Callback(const geometry_msgs::PoseArrayConstPtr &in_route2_msg);
+    void Route3Callback(const geometry_msgs::PoseArrayConstPtr &in_route3_msg);
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
     void AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg);
     void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
@@ -52,6 +53,7 @@ public:
     void ProcessINI();
     void Run();
     void Publish();
+    void SelectWaypoint();
     void UpdateState();
     void MakeTrajectory();
     geometry_msgs::Point FindClosestPoint();
@@ -67,16 +69,13 @@ private:
     ros::Publisher p_rviz_trajectory_pub;
 
     // Subscriber
-    ros::Subscriber s_global_route_sub;
+    ros::Subscriber s_global_route1_sub;
+    ros::Subscriber s_global_route2_sub;
+    ros::Subscriber s_global_route3_sub;
     ros::Subscriber s_odom_sub;
     ros::Subscriber s_ahead_vehicle_sub;
     ros::Subscriber s_mission_sub;
     ros::Subscriber s_traffic_light_sub;    // subscribe traffic light signal
-
-    // Mutex
-    std::mutex mutex_route;
-    std::mutex mutex_odom;
-    std::mutex mutex_ahead_vehicle_info;
 
     // Messages
 
@@ -87,6 +86,11 @@ private:
     LocalPlanningParameters local_planning_params_;
 
     // Variables
+
+    std::vector<geometry_msgs::Point> m_lane_left_vec;
+    std::vector<geometry_msgs::Point> m_lane_center_vec;
+    std::vector<geometry_msgs::Point> m_lane_right_vec;
+
     std::vector<geometry_msgs::Point> m_waypoint_vec;
 
     nav_msgs::Odometry m_odom;
@@ -104,7 +108,9 @@ private:
     kucudas_msgs::Trajectory m_trajectory;
     visualization_msgs::MarkerArray m_trajectory_marker_array;
 
-    bool get_global_route = false;
+    bool get_global_route1 = false;
+    bool get_global_route2 = false;
+    bool get_global_route3 = false;
 
     int m_print_count = 0;
 

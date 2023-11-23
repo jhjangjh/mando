@@ -19,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   kucudas_msgs
   jsk_rviz_plugins
+  lanelet2_io
+  lanelet2_projection
 )
 
 ## System dependencies are found with CMake's conventions

@@ -6,7 +6,6 @@
 #include <string>
 #include <stdlib.h>
 #include <fstream>
-#include <mutex>
 
 // ROS header
 #include <ros/ros.h>
@@ -15,7 +14,6 @@
 
 // Utility header
 #include <util/ini_parser.hpp>
-#include <util/transForm.hpp>
 
 // Message header
 #include <nav_msgs/Odometry.h>
@@ -47,7 +45,6 @@ public:
     ~VehicleControl();
 
     void Init();
-    void ReadCSVFile();
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
     void TrajectoryCallback(const kucudas_msgs::TrajectoryConstPtr &in_trajectory_msg);
     void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
@@ -81,10 +78,6 @@ private:
     ros::Subscriber s_odom_sub;
     ros::Subscriber s_mission_sub;
     ros::Subscriber s_tunnel_point_sub;
-
-    // Mutex
-    std::mutex mutex_odom;
-    std::mutex mutex_trajectory;
 
     // Messages
     carla_msgs::CarlaEgoVehicleControl m_control_msg;
