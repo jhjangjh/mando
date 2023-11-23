@@ -15,11 +15,13 @@
 
 // Utility header
 #include <util/ini_parser.hpp>
+#include <util/transForm.hpp>
 
 // Message header
 #include <nav_msgs/Odometry.h>
 #include <kucudas_msgs/Trajectory.h>
 #include <std_msgs/Float32.h>
+#include <std_msgs/Int8.h>
 
 // Carla header
 #include <carla_msgs/CarlaEgoVehicleControl.h>
@@ -28,6 +30,16 @@
 #include <longitudinal_control_config.hpp>
 #include <lateral_control_config.hpp>
 
+// Mission Define
+#define NORMAL_DRIVE 0
+#define STATIC_OBSTACLE_1 1
+#define TRAFFIC_LIGHT 2
+#define ROTARY 3
+#define DYNAMIC_OBSTACLE 4
+#define PARKING 5
+#define TUNNEL 6
+#define STATIC_OBSTACLE_3 7
+
 class VehicleControl {
 
 public:
@@ -35,8 +47,11 @@ public:
     ~VehicleControl();
 
     void Init();
+    void ReadCSVFile();
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
     void TrajectoryCallback(const kucudas_msgs::TrajectoryConstPtr &in_trajectory_msg);
+    void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
+    void TunnelPointCallback(const geometry_msgs::PointConstPtr &in_point_msg);
     void ProcessINI();
     void Run();
     void Publish();
@@ -64,6 +79,8 @@ private:
     // Subscriber
     ros::Subscriber s_trajectory_sub;
     ros::Subscriber s_odom_sub;
+    ros::Subscriber s_mission_sub;
+    ros::Subscriber s_tunnel_point_sub;
 
     // Mutex
     std::mutex mutex_odom;
@@ -103,6 +120,8 @@ private:
 
     kucudas_msgs::Trajectory m_trajectory;
 
+    std::vector<geometry_msgs::Point> m_parking_waypoint_vec;
+
     double pid_dt = (1.0)/100;
 
     double pid_Kp = 0.;
@@ -117,7 +136,9 @@ private:
     double pid_pre_error = 0.;
 
     int m_print_count = 0;
+    int m_mission = NORMAL_DRIVE;
 
+    geometry_msgs::Point m_tunnel_point;
 };
 
 #endif // __VEHICLE_CONTROL_HPP__

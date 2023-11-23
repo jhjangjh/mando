@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-      Splitter Ratio: 0.5
+      Splitter Ratio: 0.6352941393852234
     Tree Height: 719
   - Class: rviz/Selection
     Name: Selection
@@ -104,29 +104,6 @@ Visualization Manager:
       top: 300
       update interval: 0.03999999910593033
       width: 150
-    - Class: jsk_rviz_plugin/PieChart
-      Enabled: true
-      Name: CTE
-      Topic: /hmi/cross_track_error
-      Value: true
-      auto color change: false
-      background color: 0; 0; 0
-      backround alpha: 0
-      clockwise rotate direction: false
-      foreground alpha: 0.699999988079071
-      foreground alpha 2: 0.4000000059604645
-      foreground color: 188; 87; 223
-      left: 128
-      max color: 255; 0; 0
-      max color change threthold: 0
-      max value: 1
-      med color: 255; 0; 0
-      med color change threthold: 0
-      min value: 0
-      show caption: true
-      size: 128
-      text size: 14
-      top: 540
     - Buffer length: 100
       Class: jsk_rviz_plugin/Plotter2D
       Enabled: true
@@ -192,7 +169,30 @@ Visualization Manager:
       left: 320
       max color: 255; 0; 0
       max color change threthold: 0
-      max value: 1
+      max value: 3.140000104904175
+      med color: 255; 0; 0
+      med color change threthold: 0
+      min value: 0
+      show caption: true
+      size: 128
+      text size: 14
+      top: 540
+    - Class: jsk_rviz_plugin/PieChart
+      Enabled: true
+      Name: CTE
+      Topic: /hmi/cross_track_error
+      Value: true
+      auto color change: false
+      background color: 0; 0; 0
+      backround alpha: 0
+      clockwise rotate direction: false
+      foreground alpha: 0.699999988079071
+      foreground alpha 2: 0.4000000059604645
+      foreground color: 188; 87; 223
+      left: 128
+      max color: 255; 0; 0
+      max color change threthold: 0
+      max value: 5
       med color: 255; 0; 0
       med color change threthold: 0
       min value: 0
