@@ -67,10 +67,13 @@ public:
     double GRTheta(double x, double y);
     void VoxelizeData();
     void SetROI();
+    void MakeTargetPoint();
 
 private:
     // Publisher
     ros::Publisher p_roi_lidar_pub;
+    ros::Publisher p_target_point_pub;
+    ros::Publisher p_target_point_rviz_pub;
 
     // Subscriber
     ros::Subscriber s_lidar_sub;
@@ -89,13 +92,17 @@ private:
     // Variables
     pcl::PointCloud<pcl::PointXYZ>::Ptr m_cloud_raw_ptr;
     pcl::PointCloud<pcl::PointXYZ>::Ptr m_voxelized_ptr;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr m_cluster_ptr;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr m_filtered_ptr;
 
     sensor_msgs::PointCloud2 m_output_voxel;
     pcl::PCLPointCloud2 m_cloud_p;
     sensor_msgs::PointCloud2 m_output_gr;
     pcl::PointCloud<pcl::PointXYZ> m_laser_cloud_in;
     sensor_msgs::PointCloud2 m_output_roi;
+
+    geometry_msgs::Point m_target_point;
+    visualization_msgs::Marker m_target_point_marker;
+
 
     int m_mission = NORMAL_DRIVE;
     int m_print_count = 0;
