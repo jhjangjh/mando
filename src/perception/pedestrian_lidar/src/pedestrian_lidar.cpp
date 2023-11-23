@@ -20,9 +20,7 @@ PedestrianLidar::PedestrianLidar(ros::NodeHandle &nh_){
 PedestrianLidar::~PedestrianLidar(){}
 
 void PedestrianLidar::LidarCallback(const sensor_msgs::PointCloud2ConstPtr &in_lidar_msg){
-    mutex_lidar.lock();
     pcl::fromROSMsg(*in_lidar_msg,*m_cloud_raw_ptr);
-    mutex_lidar.unlock();
 }
 
 void PedestrianLidar::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){

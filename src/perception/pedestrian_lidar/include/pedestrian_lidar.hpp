@@ -81,9 +81,6 @@ private:
     ros::Subscriber s_lidar_sub;
     ros::Subscriber s_mission_sub;
 
-    // Mutex
-    std::mutex mutex_lidar;
-
     // Messages
 
     // Environments
