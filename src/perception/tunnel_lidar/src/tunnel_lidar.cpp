@@ -50,6 +50,15 @@ void TunnelLidar::Run(){
             ROS_INFO_STREAM("Tunnel Lidar is running...");
         }
     }
+    // VoxelizeData();
+    // SetROI();
+    // MakeTargetPoint();
+    // UpdateRviz();
+    // if(m_print_count++ % 10 == 0)
+    // {
+    //     ROS_INFO_STREAM("Tunnel Lidar is running...");
+    // }
+
 
 }
 
@@ -176,6 +185,13 @@ void TunnelLidar::SetROI()
     remove_filter.setFilterLimits(-5.,FLT_MAX);
     remove_filter.filter(*m_filtered_ptr); // Update the filtered points in m_voxelized_ptr
 
+    // Create a PassThrough filter for x-axis
+    pcl::PassThrough<pcl::PointXYZ> remove_filter_front;
+    remove_filter_front.setInputCloud(m_filtered_ptr); // Assuming m_voxelized_ptr is your input cloud
+    remove_filter_front.setFilterFieldName("x");
+    remove_filter_front.setFilterLimits(tunnel_lidar_params_.front_distance,FLT_MAX);
+    remove_filter_front.filter(*m_filtered_ptr); // Update the filtered points in m_voxelized_ptr
+
 
     pcl::PCLPointCloud2 temp;
     pcl::toPCLPointCloud2(*m_filtered_ptr,temp);
@@ -196,16 +212,13 @@ void TunnelLidar::MakeTargetPoint()
 
     double sum_x = 0;
     double sum_y = 0;
-    int count = 0;
+    int count = FLT_MIN;
 
     for(unsigned int j=0; j<temp_PointXYZ.points.size(); j++)
     {
-        if(temp_PointXYZ.points[j].x > tunnel_lidar_params_.front_distance)
-        {
-            sum_x += temp_PointXYZ.points[j].x;
-            sum_y += temp_PointXYZ.points[j].y;
-            count++;
-        }
+        sum_x += temp_PointXYZ.points[j].x;
+        sum_y += temp_PointXYZ.points[j].y;
+        count++;
     }
     
     m_target_point.x = sum_x/count;

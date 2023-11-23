@@ -52,10 +52,42 @@ void VehicleControl::Init(){
 void VehicleControl::Run(){
     ProcessINI();
     UpdateState();
+    // if(m_trajectory.point.size()!=0)
+    // {
+    //     m_closest_point = FindClosestPoint();
+    //     double lookahead_distance = SetLookAheadDistance();
+    //     m_target_point = FindTargetPoint(m_closest_point, lookahead_distance);
+
+    //     double pid_error;
+    //     if(longitudinal_control_params_.use_manual_desired_velocity)
+    //     {
+    //         pid_error = PIDControl(longitudinal_control_params_.manual_desired_velocity);
+    //     }
+    //     else
+    //     {
+    //         pid_error = PIDControl(m_target_point.speed);
+    //     }
+
+    //     double steering_angle;
+    //     steering_angle = PurePursuit(m_target_point);
+
+    //     SetControlCmd(pid_error, steering_angle);
+    //     UpdateControlState();
+
+    //     if(m_print_count++ % 10 == 0)
+    //     {
+    //         ROS_INFO_STREAM("Vehicle Control is running...");
+    //     }
+    // }
+    // else
+    // {
+    //     ROS_WARN_STREAM("Waiting Trajectory...");
+    // }
+    
     if(m_mission==TUNNEL)
     {
         double pid_error;
-        pid_error = PIDControl(longitudinal_control_params_.manual_desired_velocity);
+        pid_error = PIDControl(longitudinal_control_params_.tunnel_velocity);
         double steering_angle;
         m_target_point.x = m_tunnel_point.x;
         m_target_point.y = m_tunnel_point.y;
@@ -63,6 +95,11 @@ void VehicleControl::Run(){
 
         SetControlCmd(pid_error, steering_angle);
         UpdateControlState();
+
+        if(m_print_count++ % 10 == 0)
+        {
+            ROS_WARN_STREAM(" [Tunnel] Vehicle Control is running...");
+        }
     }
     else
     {
@@ -295,17 +332,28 @@ double VehicleControl::GetCrossTrackError(kucudas_msgs::TrajectoryPoint target_p
 double VehicleControl::GetSteeringAngle(kucudas_msgs::TrajectoryPoint target_point)
 {
     double steering_angle;
+    double lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
     if(m_mission == TUNNEL)
     {
         m_target_lateral_error = target_point.y;
+        ROS_INFO_STREAM("target_point.x" << target_point.x);
+        ROS_INFO_STREAM("target_point.y" << target_point.y);
+        ROS_INFO_STREAM("m_target_lateral_error : "<<m_target_lateral_error);
+        lookahead_point_distance = sqrt(pow(target_point.x,2)+pow(target_point.y,2));
     }
     else
     {
         m_target_lateral_error = GetCrossTrackError(target_point);
+        lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
     }
+
+    // m_target_lateral_error = GetCrossTrackError(target_point);
+    // ROS_INFO_STREAM("m_target_lateral_error : "<<m_target_lateral_error);
+    
     double wheel_base = 1.2501934625522466 + 1.256300229233517;
-    double lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
     steering_angle = -atan2(2 * wheel_base * m_target_lateral_error,pow(lookahead_point_distance,2));
+
+    ROS_INFO_STREAM("steering_angle : " << steering_angle);
     return steering_angle;
 }
 
