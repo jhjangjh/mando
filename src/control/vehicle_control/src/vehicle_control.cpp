@@ -16,11 +16,21 @@ VehicleControl::VehicleControl(ros::NodeHandle &nh_){
 
     s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 1, &VehicleControl::OdomCallback, this);
     s_trajectory_sub = nh_.subscribe("/trajectory",1, &VehicleControl::TrajectoryCallback, this);
+    s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &VehicleControl::MissionCallback, this);
+    s_tunnel_point_sub = nh_.subscribe("/tunnel_target_point", 10, &VehicleControl::TunnelPointCallback, this);
 
     Init();
 }
 
 VehicleControl::~VehicleControl(){}
+
+void VehicleControl::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){
+    m_mission = in_mission_msg->data;
+}
+
+void VehicleControl::TunnelPointCallback(const geometry_msgs::PointConstPtr &in_point_msg){
+    m_tunnel_point = *in_point_msg;
+}
 
 void VehicleControl::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
     mutex_odom.lock();
@@ -42,36 +52,51 @@ void VehicleControl::Init(){
 void VehicleControl::Run(){
     ProcessINI();
     UpdateState();
-    if(m_trajectory.point.size()!=0)
+    if(m_mission==TUNNEL)
     {
-        m_closest_point = FindClosestPoint();
-        double lookahead_distance = SetLookAheadDistance();
-        m_target_point = FindTargetPoint(m_closest_point, lookahead_distance);
-
         double pid_error;
-        if(longitudinal_control_params_.use_manual_desired_velocity)
-        {
-            pid_error = PIDControl(longitudinal_control_params_.manual_desired_velocity);
-        }
-        else
-        {
-            pid_error = PIDControl(m_target_point.speed);
-        }
-
+        pid_error = PIDControl(longitudinal_control_params_.manual_desired_velocity);
         double steering_angle;
+        m_target_point.x = m_tunnel_point.x;
+        m_target_point.y = m_tunnel_point.y;
         steering_angle = PurePursuit(m_target_point);
 
         SetControlCmd(pid_error, steering_angle);
         UpdateControlState();
-
-        if(m_print_count++ % 10 == 0)
-        {
-            ROS_INFO_STREAM("Vehicle Control is running...");
-        }
     }
     else
     {
-        ROS_WARN_STREAM("Waiting Trajectory...");
+        if(m_trajectory.point.size()!=0)
+        {
+            m_closest_point = FindClosestPoint();
+            double lookahead_distance = SetLookAheadDistance();
+            m_target_point = FindTargetPoint(m_closest_point, lookahead_distance);
+
+            double pid_error;
+            if(longitudinal_control_params_.use_manual_desired_velocity)
+            {
+                pid_error = PIDControl(longitudinal_control_params_.manual_desired_velocity);
+            }
+            else
+            {
+                pid_error = PIDControl(m_target_point.speed);
+            }
+
+            double steering_angle;
+            steering_angle = PurePursuit(m_target_point);
+
+            SetControlCmd(pid_error, steering_angle);
+            UpdateControlState();
+
+            if(m_print_count++ % 10 == 0)
+            {
+                ROS_INFO_STREAM("Vehicle Control is running...");
+            }
+        }
+        else
+        {
+            ROS_WARN_STREAM("Waiting Trajectory...");
+        }
     }
     
 }
@@ -97,6 +122,8 @@ void VehicleControl::ProcessINI(){
                                     longitudinal_control_params_.use_manual_desired_velocity);
         v_ini_parser_.ParseConfig("longitudinal_control", "manual_desired_velocity",
                                     longitudinal_control_params_.manual_desired_velocity);
+        v_ini_parser_.ParseConfig("longitudinal_control", "tunnel_velocity",
+                                    longitudinal_control_params_.tunnel_velocity);
         v_ini_parser_.ParseConfig("lateral_control", "max_lookahead_distance",
                                     lateral_control_params_.max_lookahead_distance);
         v_ini_parser_.ParseConfig("lateral_control", "min_lookahead_distance",
@@ -268,7 +295,14 @@ double VehicleControl::GetCrossTrackError(kucudas_msgs::TrajectoryPoint target_p
 double VehicleControl::GetSteeringAngle(kucudas_msgs::TrajectoryPoint target_point)
 {
     double steering_angle;
-    m_target_lateral_error = GetCrossTrackError(target_point);
+    if(m_mission == TUNNEL)
+    {
+        m_target_lateral_error = target_point.y;
+    }
+    else
+    {
+        m_target_lateral_error = GetCrossTrackError(target_point);
+    }
     double wheel_base = 1.2501934625522466 + 1.256300229233517;
     double lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
     steering_angle = -atan2(2 * wheel_base * m_target_lateral_error,pow(lookahead_point_distance,2));

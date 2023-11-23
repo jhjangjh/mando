@@ -8,6 +8,7 @@ typedef struct {
     double D_gain;
     bool use_manual_desired_velocity;
     double manual_desired_velocity;
+    double tunnel_velocity;
 } LongitudinalControlParameters;
 
 #endif  // __LONGITUDINAL_CONTROL_CONFIG_HPP__
