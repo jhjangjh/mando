@@ -12,7 +12,6 @@
 #include <tf/tf.h>
 
 // Utility header
-#include <util/transForm.hpp>
 #include <util/ini_parser.hpp>
 
 // Message header
@@ -27,6 +26,17 @@
 // Config header
 #include <mission_generator_config.hpp>
 
+// Lanelet
+#include <lanelet2_io/Io.h>
+#include <lanelet2_projection/UTM.h>
+#include <lanelet2_core/primitives/Lanelet.h>
+
+#define LEFT_BOUNDARY_ID 4292
+#define RIGHT_BOUNDARY_ID 4530
+#define LANE_LEFT_ID -1370
+#define LANE_CENTER_ID 4531
+#define LANE_RIGHT_ID -1320
+
 // Mission Define
 #define NORMAL_DRIVE 0
 #define STATIC_OBSTACLE_1 1
@@ -36,6 +46,9 @@
 #define PARKING 5
 #define TUNNEL 6
 #define STATIC_OBSTACLE_3 7
+
+// Namespace
+using namespace lanelet;
 
 class MissionGenerator {
 
@@ -47,7 +60,7 @@ public:
     void ProcessINI();
     void Run();
     void Publish();
-    void ReadCSVFile();
+    void ReadOSMFile();
     void MakeGlobalRoute();
     void UpdateState();
     void GenerateMission();
@@ -58,7 +71,9 @@ public:
 
 private:
     // Publisher
-    ros::Publisher p_global_route_pub;
+    ros::Publisher p_global_route1_pub;
+    ros::Publisher p_global_route2_pub;
+    ros::Publisher p_global_route3_pub;
     ros::Publisher p_rviz_lane_pub;
     ros::Publisher p_mission_pub;
     ros::Publisher p_rviz_mission_pub;
@@ -66,11 +81,10 @@ private:
     // Subscriber
     ros::Subscriber s_odom_sub;
 
-    // Mutex
-    std::mutex mutex_odom;
-
     // Messages
-    geometry_msgs::PoseArray global_route_msg;
+    geometry_msgs::PoseArray global_route1_msg;
+    geometry_msgs::PoseArray global_route2_msg;
+    geometry_msgs::PoseArray global_route3_msg;
     visualization_msgs::MarkerArray lane_marker_array_msg;
     std_msgs::Int8 mission_msg;
     jsk_rviz_plugins::OverlayText rviz_mission_msg;
@@ -81,9 +95,20 @@ private:
     // Configuration parameters
     MissionGeneratorParameters mission_generator_params_;
 
+    // Lanelet
+    Origin lanelet_origin{{0.0, 0.0}}; //Town03 Map Center latlon = 0.0 , 0.0
+    projection::UtmProjector lanelet_utm_projector;
+    LaneletMapPtr lanelet_map;
+
     // Variables
     std::vector<geometry_msgs::Point> m_waypoint_vec;
     nav_msgs::Odometry m_odom;
+
+    std::vector<geometry_msgs::Point> m_left_boundary_vec;
+    std::vector<geometry_msgs::Point> m_right_boundary_vec;
+    std::vector<geometry_msgs::Point> m_lane_left_vec;
+    std::vector<geometry_msgs::Point> m_lane_center_vec;
+    std::vector<geometry_msgs::Point> m_lane_right_vec;
 
     geometry_msgs::Point m_closest_point;
     int m_closest_id;

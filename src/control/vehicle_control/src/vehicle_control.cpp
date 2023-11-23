@@ -33,75 +33,16 @@ void VehicleControl::TunnelPointCallback(const geometry_msgs::PointConstPtr &in_
 }
 
 void VehicleControl::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
-    mutex_odom.lock();
     m_odom.pose = in_odom_msg->pose;
     m_odom.twist = in_odom_msg->twist;
-    mutex_odom.unlock();
 }
 
 void VehicleControl::TrajectoryCallback(const kucudas_msgs::TrajectoryConstPtr &in_trajectory_msg){
-    mutex_trajectory.lock();
     m_trajectory = *in_trajectory_msg;
-    mutex_trajectory.unlock();
 }
 
 void VehicleControl::Init(){
     ProcessINI();  
-    ReadCSVFile();
-}
-
-void VehicleControl::ReadCSVFile(){
-    std::string currentFilePath = __FILE__;
-
-    size_t lastSlashPos = currentFilePath.find_last_of('/');
-    std::string srcDir = currentFilePath.substr(0, lastSlashPos);
-
-    lastSlashPos = srcDir.find_last_of('/');
-    std::string pkgDir = srcDir.substr(0, lastSlashPos);
-
-    lastSlashPos = pkgDir.find_last_of('/');
-    std::string appDir = pkgDir.substr(0, lastSlashPos);
-
-    lastSlashPos = appDir.find_last_of('/');
-    std::string ws_srcDir = appDir.substr(0, lastSlashPos);
-
-    lastSlashPos = ws_srcDir.find_last_of('/');
-    std::string wsDir = ws_srcDir.substr(0, lastSlashPos);
-
-    std::string osmPath_lane = "/resources/parking.csv";
-
-    std::string map_path_lane = wsDir + osmPath_lane;
-
-    std::ifstream in_lane(map_path_lane);
-
-    if (!in_lane.is_open()) 
-    {
-      ROS_INFO("Lane File not found");
-    }
-
-
-    std::string s_1;
-
-    while(in_lane)
-    {
-        getline(in_lane, s_1);
-        std::istringstream iss(s_1);
-        std::vector<double> temp;
-
-
-        std::vector<std::string> buf = transForm::split(s_1, ',');
-        for (std::vector<std::string>::iterator itr = buf.begin(); itr != buf.end(); ++itr) 
-        {
-            temp.push_back(transForm::toNumber(*itr));
-        }
-
-        geometry_msgs::Point waypoint;
-        waypoint.x = temp[0];
-        waypoint.y = temp[1];
-        m_parking_waypoint_vec.push_back(waypoint);
-
-    }
-
 }
 
 void VehicleControl::Run(){
