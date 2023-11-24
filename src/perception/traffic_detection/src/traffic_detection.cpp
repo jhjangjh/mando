@@ -147,7 +147,7 @@ void Detection::AheadVehicleCallback(const visualization_msgs::MarkerArrayConstP
     for(auto point : in_ahead_vehicle_info_msg->markers){
         
         distance = sqrt(pow((point.pose.position.x - m_odom.pose.pose.position.x),2) + pow((point.pose.position.y - m_odom.pose.pose.position.y),2));
-        if(distance<10 && distance>1.0){
+        if(distance<15 && distance>1.0){
             ROS_WARN_STREAM("distance : "<<distance);
             m_vehicle_posearray.poses.push_back(point.pose);
         }
