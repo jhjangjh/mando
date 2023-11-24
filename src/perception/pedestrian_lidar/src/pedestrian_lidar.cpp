@@ -48,7 +48,7 @@ void PedestrianLidar::Run(){
         UpdateRviz();
         if(m_print_count++ % 10 == 0)
         {
-            ROS_INFO_STREAM("Tunnel Lidar is running...");
+            ROS_INFO_STREAM("Pedestrian Lidar is running...");
         }
     }
 
@@ -83,6 +83,8 @@ void PedestrianLidar::ProcessINI(){
                                     pedestrian_lidar_params_.max_z_roi);
         v_ini_parser_.ParseConfig("pedestrian_lidar", "min_z_roi",
                                     pedestrian_lidar_params_.min_z_roi);
+        v_ini_parser_.ParseConfig("pedestrian_lidar", "angle_roi",
+                                    pedestrian_lidar_params_.angle_roi);
 
         ROS_WARN("[Pedestrian Lidar] Ini file is updated!\n");
     }
@@ -147,7 +149,7 @@ void PedestrianLidar::SetROI()
     for(unsigned int j=0; j<m_laser_cloud_in.points.size(); j++)
     {
 
-        if(GRTheta(m_laser_cloud_in.points[j].x , m_laser_cloud_in.points[j].y) > 50)
+        if(GRTheta(m_laser_cloud_in.points[j].x , m_laser_cloud_in.points[j].y) > pedestrian_lidar_params_.angle_roi)
         {
             m_laser_cloud_in.points[j].x = -10.;
             m_laser_cloud_in.points[j].y = 0;
@@ -254,7 +256,7 @@ void PedestrianLidar::UpdateRviz()
 
 int main(int argc, char** argv)
 {
-    std::string node_name = "tunnel_lidar";
+    std::string node_name = "pedestrian_lidar";
     ros::init(argc, argv, node_name);
     ros::NodeHandle nh("~");
 

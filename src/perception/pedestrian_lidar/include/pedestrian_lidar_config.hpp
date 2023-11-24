@@ -11,7 +11,8 @@ typedef struct {
     double max_y_roi = 2;
     double min_y_roi = -2;
     double max_z_roi = 2;
-    double min_z_roi = 2;
+    double min_z_roi = 2; 
+    double angle_roi = 40;
 } PedestrianLidarParameters;
 
 #endif  // __PEDESTRIAN_LIDAR_CONFIG_HPP__
