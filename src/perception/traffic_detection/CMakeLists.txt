@@ -9,10 +9,18 @@ project(traffic_detection)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   carla_msgs
+  geometry_msgs
+  nav_msgs
   roscpp
   rospy
   sensor_msgs
   std_msgs
+  tf
+  visualization_msgs
+  kucudas_msgs
+  lanelet2_io
+  lanelet2_projection
+  lanelet2_core
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,7 +113,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS
 #  LIBRARIES traffic_detection
 #  CATKIN_DEPENDS carla_msgs roscpp rospy sensor_msgs std_msgs
 #  DEPENDS system_lib
@@ -118,8 +126,21 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  # include
   ${catkin_INCLUDE_DIRS}
+)
+
+add_executable(${PROJECT_NAME}
+    src/traffic_detection.cpp
+)
+
+add_dependencies(${PROJECT_NAME}
+    ${${PROJECT_NAME}_EXPORTED_TARGETS}
+    ${catkin_EXPORTED_TARGETS}
+)
+
+target_link_libraries(${PROJECT_NAME} 
+    ${catkin_LIBRARIES}
 )
 
 ## Declare a C++ library
