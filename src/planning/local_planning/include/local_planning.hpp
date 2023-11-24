@@ -42,13 +42,17 @@
 
 // Mission Define
 #define NORMAL_DRIVE 0
-#define STATIC_OBSTACLE_1 1
-#define TRAFFIC_LIGHT 2
-#define ROTARY 3
-#define DYNAMIC_OBSTACLE 4
-#define PARKING 5
-#define TUNNEL 6
-#define STATIC_OBSTACLE_3 7
+#define TRAFFIC_LIGHT_1 1
+#define TRAFFIC_LIGHT_2 2
+#define TRAFFIC_LIGHT_3 3
+#define TRAFFIC_LIGHT_4 4
+#define TRAFFIC_LIGHT_5 5
+#define TRAFFIC_LIGHT_6 6
+#define TRAFFIC_LIGHT_7 7
+#define TRAFFIC_LIGHT_8 8
+#define LOOP 9
+#define END_LOOP 10
+#define TUNNEL 11
 
 #define RED 0
 #define GREEN 2
@@ -97,6 +101,7 @@ private:
     // Publisher
     ros::Publisher p_trajectory_pub;
     ros::Publisher p_rviz_trajectory_pub;
+    ros::Publisher p_loop_count_pub;
 
     // Subscriber
     ros::Subscriber s_global_route1_sub;
@@ -112,6 +117,7 @@ private:
 
     // Messages
     int m_block = NO_BLOCK;
+    std_msgs::Int8 loop_count_msg;
 
     // Environments
     IniParser v_ini_parser_;
@@ -163,6 +169,9 @@ private:
     int m_mission = NORMAL_DRIVE;
 
     int traffic_signal = GREEN;      // subscribing traffic light signal     
+
+    int loop_count = 0;
+    int loop_half = 0;
 };
 
 #endif // __LOCAL_PLANNING_HPP__

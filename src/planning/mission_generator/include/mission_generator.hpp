@@ -57,7 +57,8 @@
 #define TRAFFIC_LIGHT_7 7
 #define TRAFFIC_LIGHT_8 8
 #define LOOP 9
-#define TUNNEL 10 
+#define END_LOOP 10
+#define TUNNEL 11 
 
 // Namespace
 using namespace lanelet;
@@ -83,6 +84,7 @@ public:
     void GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg);
     void TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg);
     void VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg);
+    void LoopCountCallback(const std_msgs::Int8ConstPtr &in_loop_count_msg);
     
     
 
@@ -100,6 +102,7 @@ private:
     ros::Subscriber s_gnss_sub;
     ros::Subscriber s_tf_sub;
     ros::Subscriber s_vs_sub;
+    ros::Subscriber s_loop_count_sub;
 
     // Messages
     geometry_msgs::PoseArray global_route1_msg;
@@ -148,6 +151,8 @@ private:
 
     int m_mission = NORMAL_DRIVE;
     int m_print_count = 0;
+
+    int m_loop_count = 0;
 };
 
 #endif // __MISSION_GENERATOR_HPP__
