@@ -10,7 +10,7 @@ PedestrianLidar::PedestrianLidar(ros::NodeHandle &nh_){
     p_roi_lidar_pub = nh_.advertise<pcl::PCLPointCloud2>("roi_lidar",100);
     p_target_point_pub = nh_.advertise<geometry_msgs::Point>("/pedestrian_target_point",100);
     p_target_point_rviz_pub = nh_.advertise<visualization_msgs::Marker>("/hmi/pedestrian_target_point",100);
-    
+    pub_front_distance = nh_.advertise<std_msgs::Float32>("/front_vehicle/distance", 100);
     s_lidar_sub = nh_.subscribe("/carla/ego_vehicle/lidar", 10, &PedestrianLidar::LidarCallback, this);
     s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &PedestrianLidar::MissionCallback, this);
 
@@ -195,6 +195,73 @@ void PedestrianLidar::SetROI()
     pcl_conversions::fromPCL(temp,m_output_roi);
 
     m_output_roi.header.frame_id = "ego_vehicle/lidar";
+
+    
+    // clustering
+    // Creating the KdTree object for the search method of the extraction
+    int ptr_size = (int)m_filtered_ptr->size();
+    if(m_filtered_ptr->size() != 0) {
+        pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+        tree->setInputCloud (m_filtered_ptr);
+
+        std::vector<pcl::PointIndices> cluster_indices;
+        pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+        ec.setClusterTolerance (1); 			// 1m의 포인트와 포인트 간의 간격
+        ec.setMinClusterSize (4);				// 한 군집의 최소 포인트 개수
+        ec.setMaxClusterSize (40);				// 한 군집의 최대 포인트 개수
+        ec.setSearchMethod (tree);				// 검색 방법 : tree 
+        ec.setInputCloud (m_filtered_ptr);	// cloud_filtered_v2에 클러스터링 결과를 입력
+        ec.extract (cluster_indices);
+
+        std::cout << "Number of clusters is equal to " << cluster_indices.size () << std::endl;
+
+        
+        pcl::PointCloud<pcl::PointXYZ>::Ptr center_point(new pcl::PointCloud<pcl::PointXYZ>); // pcl::PointCloud 선언
+        // std::vector<geometry_msgs::Point> centroid_points; // 중심점을 저장할 배열
+        // 클러스터별 정보 수집, 출력, 저장
+        int j = 0;             
+
+        for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it) {
+            
+            pcl::CentroidPoint<pcl::PointXYZ> centroid;
+            pcl::PointCloud<pcl::PointXYZ> TotalCloud_xyz; 
+
+            for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit) {
+                                    
+                pcl::PointXYZ pt = m_filtered_ptr->points[*pit];
+                pcl::PointXYZI pt2;
+
+                pt2.x = pt.x, pt2.y = pt.y, pt2.z = pt.z; 
+
+                pt2.intensity = (float)(j + 1);
+                
+                
+                TotalCloud_xyz.push_back(pt);
+
+                centroid.add(pt);
+
+            }
+            
+            j++;
+
+            ///////////////////////* clustered object center point */////////////////////
+
+            pcl::PointXYZ centroid_point;
+            centroid.get(centroid_point);         // centroid point 구함
+            
+            // std::cout << centroid_point.x << ", " << centroid_point.y << "\n";
+            double distance;
+            distance = sqrt( pow(centroid_point.x, 2) + pow(centroid_point.y, 2) );
+            front_distance_msg.data = distance;
+        }
+    }
+    else {
+        front_distance_msg.data = -1;
+    }
+    pub_front_distance.publish(front_distance_msg);
+
+    m_filtered_ptr->clear();
+    
 }
 
 void PedestrianLidar::MakeTargetPoint()

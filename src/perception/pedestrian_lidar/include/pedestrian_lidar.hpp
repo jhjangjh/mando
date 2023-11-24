@@ -17,6 +17,7 @@
 // Message header
 #include <sensor_msgs/PointCloud2.h>
 #include <std_msgs/Int8.h>
+#include <std_msgs/Float32.h>
 
 // Visualize header
 #include <visualization_msgs/MarkerArray.h>
@@ -76,6 +77,7 @@ private:
     ros::Publisher p_roi_lidar_pub;
     ros::Publisher p_target_point_pub;
     ros::Publisher p_target_point_rviz_pub;
+    ros::Publisher pub_front_distance;
 
     // Subscriber
     ros::Subscriber s_lidar_sub;
@@ -102,6 +104,7 @@ private:
     sensor_msgs::PointCloud2 m_output_gr;
     pcl::PointCloud<pcl::PointXYZ> m_laser_cloud_in;
     sensor_msgs::PointCloud2 m_output_roi;
+    std_msgs::Float32 front_distance_msg;
 
     geometry_msgs::Point m_target_point;
     visualization_msgs::Marker m_target_point_marker;
