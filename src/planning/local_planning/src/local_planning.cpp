@@ -10,7 +10,9 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
     p_trajectory_pub = nh_.advertise<kucudas_msgs::Trajectory>("/trajectory", 100);
     p_rviz_trajectory_pub = nh_.advertise<visualization_msgs::MarkerArray>("/hmi/trajectory", 10);
 
-    s_global_route_sub = nh_.subscribe("/adas/planning/global_route", 1000, &LocalPlanning::RouteCallback, this);
+    s_global_route1_sub = nh_.subscribe("/adas/planning/global_route1", 1000, &LocalPlanning::Route1Callback, this);
+    s_global_route2_sub = nh_.subscribe("/adas/planning/global_route2", 1000, &LocalPlanning::Route2Callback, this);
+    s_global_route3_sub = nh_.subscribe("/adas/planning/global_route3", 1000, &LocalPlanning::Route3Callback, this);
     s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &LocalPlanning::OdomCallback, this);
     s_ahead_vehicle_sub = nh_.subscribe("/adas/perception/ahead_vehicle_info", 10, &LocalPlanning::AheadVehicleCallback, this);
     s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &LocalPlanning::MissionCallback, this);
@@ -21,31 +23,49 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
 
 LocalPlanning::~LocalPlanning(){}
 
-void LocalPlanning::RouteCallback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg)
+void LocalPlanning::Route1Callback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg)
 {
-    mutex_route.lock();
-    if(m_waypoint_vec.size() == 0)
+    if(m_lane_left_vec.size() == 0)
     {
         for(auto waypoint : in_route1_msg->poses)
         {
-            m_waypoint_vec.push_back(waypoint.position);
+            m_lane_left_vec.push_back(waypoint.position);
         }
-        get_global_route = true;
+        get_global_route1 = true;
     }
-    mutex_route.unlock();
+}
+
+void LocalPlanning::Route2Callback(const geometry_msgs::PoseArrayConstPtr &in_route2_msg)
+{
+    if(m_lane_center_vec.size() == 0)
+    {
+        for(auto waypoint : in_route2_msg->poses)
+        {
+            m_lane_center_vec.push_back(waypoint.position);
+        }
+        get_global_route2 = true;
+    }
+}
+
+void LocalPlanning::Route3Callback(const geometry_msgs::PoseArrayConstPtr &in_route3_msg)
+{
+    if(m_lane_right_vec.size() == 0)
+    {
+        for(auto waypoint : in_route3_msg->poses)
+        {
+            m_lane_right_vec.push_back(waypoint.position);
+        }
+        get_global_route3 = true;
+    }
 }
 
 void LocalPlanning::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
-    mutex_odom.lock();
     m_odom.pose = in_odom_msg->pose;
     m_odom.twist = in_odom_msg->twist;
-    mutex_odom.unlock();
 }
 
 void LocalPlanning::AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg){
-    mutex_ahead_vehicle_info.lock();
     m_ahead_vehicle_info = *in_ahead_vehicle_info_msg;
-    mutex_ahead_vehicle_info.unlock();
 }
 
 void LocalPlanning::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){
@@ -64,9 +84,10 @@ void LocalPlanning::Init(){
 
 void LocalPlanning::Run(){
     ProcessINI();
-    if(get_global_route)
+    if(get_global_route1 && get_global_route2 && get_global_route3)
     {
         UpdateState();
+        SelectWaypoint();
         MakeTrajectory();
         UpdateRvizTrajectory(m_trajectory);
         if(m_print_count++ % 10 == 0)
@@ -99,6 +120,11 @@ void LocalPlanning::ProcessINI(){
                                     local_planning_params_.acc_active_distance);
         ROS_WARN("[Local Planning] Ini file is updated!\n");
     }
+}
+
+void LocalPlanning::SelectWaypoint(){
+    // TBD
+    m_waypoint_vec = m_lane_center_vec;
 }
 
 void LocalPlanning::UpdateState()

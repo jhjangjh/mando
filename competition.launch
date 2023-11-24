@@ -16,6 +16,8 @@
     <node pkg='vehicle_control' name='vehicle_control' type='vehicle_control'>
     </node>  
 
+    <!-- Rviz -->
+    <node pkg="rviz" name="rviz" type="rviz" args="-d $(find mission_generator)/rviz/mando.rviz" />
 
     <!-- Scenario --> 
 

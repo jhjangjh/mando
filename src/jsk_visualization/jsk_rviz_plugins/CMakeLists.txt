@@ -199,7 +199,7 @@ endif()
 add_dependencies(jsk_rviz_plugins
   jsk_footstep_msgs_generate_messages_cpp
   jsk_gui_msgs_generate_messages_cpp
-  jsk_hark_msgs_generate_messages_cpp
+  jsk_hark_msgs_generate_messages_cpp/
   jsk_recognition_msgs_generate_messages_cpp
   people_msgs_generate_messages_cpp
   view_controller_msgs_generate_messages_cpp
