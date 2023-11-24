@@ -18,6 +18,7 @@
 #include <geometry_msgs/PoseArray.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <kucudas_msgs/Trajectory.h>
 #include <kucudas_msgs/VehicleInformation.h>
 #include <std_msgs/Int8.h>
@@ -25,6 +26,19 @@
 
 // Config header
 #include <local_planning_config.hpp>
+
+// Lanelet
+#include <lanelet2_io/Io.h>
+#include <lanelet2_projection/UTM.h>
+#include <lanelet2_core/primitives/Lanelet.h>
+
+// tf
+#include <tf/tfMessage.h>
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
+
+// carla
+#include <carla_msgs/CarlaEgoVehicleStatus.h>
 
 // Mission Define
 #define NORMAL_DRIVE 0
@@ -35,6 +49,9 @@
 #define PARKING 5
 #define TUNNEL 6
 #define STATIC_OBSTACLE_3 7
+
+// Namespace
+using namespace lanelet;
 
 class LocalPlanning {
 
@@ -47,6 +64,9 @@ public:
     void Route2Callback(const geometry_msgs::PoseArrayConstPtr &in_route2_msg);
     void Route3Callback(const geometry_msgs::PoseArrayConstPtr &in_route3_msg);
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
+    void GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg);
+    void TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg);
+    void VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg);
     void AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg);
     void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
     void TrafficLightCallback(const std_msgs::Bool &traffic_light_msg);
@@ -73,6 +93,9 @@ private:
     ros::Subscriber s_global_route2_sub;
     ros::Subscriber s_global_route3_sub;
     ros::Subscriber s_odom_sub;
+    ros::Subscriber s_gnss_sub;
+    ros::Subscriber s_tf_sub;
+    ros::Subscriber s_vs_sub;
     ros::Subscriber s_ahead_vehicle_sub;
     ros::Subscriber s_mission_sub;
     ros::Subscriber s_traffic_light_sub;    // subscribe traffic light signal
@@ -94,7 +117,19 @@ private:
     std::vector<geometry_msgs::Point> m_waypoint_vec;
 
     nav_msgs::Odometry m_odom;
+    sensor_msgs::NavSatFix m_gnss;
+    lanelet::BasicPoint3d m_location_xyz;
+    float vs_velocity;
     kucudas_msgs::VehicleInformation m_ahead_vehicle_info;
+
+    // tf Variables
+    tf::TransformListener listener;
+    tf::StampedTransform m_ego_vehicle_transform;
+
+    // Lanelet
+    Origin lanelet_origin{{0.0, 0.0}}; //Town03 Map Center latlon = 0.0 , 0.0
+    projection::UtmProjector lanelet_utm_projector;
+    LaneletMapPtr lanelet_map;
 
     double m_ego_x;
     double m_ego_y;

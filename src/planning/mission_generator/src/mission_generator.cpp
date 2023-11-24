@@ -14,16 +14,44 @@ MissionGenerator::MissionGenerator(ros::NodeHandle &nh_) : lanelet_utm_projector
     p_mission_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/mission", 10);
     p_rviz_mission_pub = nh_.advertise<jsk_rviz_plugins::OverlayText>("/hmi/mission", 10);
 
-    s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &MissionGenerator::OdomCallback, this);
-
+    // s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &MissionGenerator::OdomCallback, this);
+    // s_gnss_sub = nh_.subscribe("/carla/ego_vehicle/gnss", 1, &MissionGenerator::GnssCallback, this);
+    s_tf_sub = nh_.subscribe("/tf",10,&MissionGenerator::TfCallback,this);
+    s_vs_sub = nh_.subscribe("/carla/ego_vehicle/vehicle_status",10,&MissionGenerator::VsCallback,this);
     Init();
 }
 
 MissionGenerator::~MissionGenerator(){}
 
-void MissionGenerator::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
-    m_odom.pose = in_odom_msg->pose;
-    m_odom.twist = in_odom_msg->twist;
+// void MissionGenerator::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
+//     // m_odom.pose = in_odom_msg->pose;
+//     m_odom.twist = in_odom_msg->twist;
+// }
+
+// void MissionGenerator::GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg){
+//     m_location_xyz= lanelet_utm_projector.forward(lanelet::GPSPoint{in_gnss_msg->latitude,in_gnss_msg->longitude,0});     // my gnss projection result
+//     m_odom.pose.pose.position.x=m_location_xyz.x();
+//     m_odom.pose.pose.position.x=m_location_xyz.y();
+//     double x = m_odom.pose.pose.position.x;
+//     double y = m_odom.pose.pose.position.y;
+//     // m_gnss.latitude = in_gnss_msg->latitude;
+//     // m_gnss.longitude = in_gnss_msg->longitude;
+//     std::cout << "odom_x,y: " << x << ", " << y << std::endl;
+// }
+
+void MissionGenerator::TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg) {
+    listener.lookupTransform("map","ego_vehicle",ros::Time(0),m_ego_vehicle_transform);
+    m_odom.pose.pose.position.x = m_ego_vehicle_transform.getOrigin().x();
+    m_odom.pose.pose.position.y = m_ego_vehicle_transform.getOrigin().y();
+    m_odom.pose.pose.position.z = m_ego_vehicle_transform.getOrigin().z();
+    m_odom.pose.pose.orientation.x = m_ego_vehicle_transform.getRotation().x();
+    m_odom.pose.pose.orientation.y = m_ego_vehicle_transform.getRotation().y();
+    m_odom.pose.pose.orientation.z = m_ego_vehicle_transform.getRotation().z();
+    m_odom.pose.pose.orientation.w = m_ego_vehicle_transform.getRotation().w();
+}
+
+void MissionGenerator::VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg){
+    vs_velocity = in_vs_msg->velocity * 3.6;        // kph
 }
 
 void MissionGenerator::Init(){
@@ -280,7 +308,7 @@ void MissionGenerator::UpdateState()
     m.getRPY(roll,pitch,yaw);
     m_yaw = yaw;
 
-    m_velocity = sqrt(pow(m_odom.twist.twist.linear.x,2)+pow(m_odom.twist.twist.linear.y,2)) * 3.6;  // kph
+    m_velocity = vs_velocity;  // kph
 }
 
 geometry_msgs::Point MissionGenerator::FindClosestPoint(){

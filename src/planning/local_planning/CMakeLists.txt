@@ -18,6 +18,9 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   visualization_msgs
   kucudas_msgs
+  lanelet2_io
+  lanelet2_projection
+  lanelet2_core
 )
 
 ## System dependencies are found with CMake's conventions

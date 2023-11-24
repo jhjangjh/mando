@@ -18,6 +18,7 @@
 #include <std_msgs/Int8.h>
 #include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/NavSatFix.h>
 #include <jsk_rviz_plugins/OverlayText.h>
 
 // Visualize header
@@ -30,6 +31,14 @@
 #include <lanelet2_io/Io.h>
 #include <lanelet2_projection/UTM.h>
 #include <lanelet2_core/primitives/Lanelet.h>
+
+// tf
+#include <tf/tfMessage.h>
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
+
+// carla
+#include <carla_msgs/CarlaEgoVehicleStatus.h>
 
 #define LEFT_BOUNDARY_ID 4292
 #define RIGHT_BOUNDARY_ID 4530
@@ -68,6 +77,11 @@ public:
     void UpdateRviz();
 
     void OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg);
+    void GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg);
+    void TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg);
+    void VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg);
+    
+    
 
 private:
     // Publisher
@@ -80,6 +94,9 @@ private:
 
     // Subscriber
     ros::Subscriber s_odom_sub;
+    ros::Subscriber s_gnss_sub;
+    ros::Subscriber s_tf_sub;
+    ros::Subscriber s_vs_sub;
 
     // Messages
     geometry_msgs::PoseArray global_route1_msg;
@@ -103,6 +120,14 @@ private:
     // Variables
     std::vector<geometry_msgs::Point> m_waypoint_vec;
     nav_msgs::Odometry m_odom;
+    sensor_msgs::NavSatFix m_gnss;
+    lanelet::BasicPoint3d m_location_xyz;
+    float vs_velocity;
+
+    // tf Variables
+    tf::TransformListener listener;
+    tf::StampedTransform m_ego_vehicle_transform;
+
 
     std::vector<geometry_msgs::Point> m_left_boundary_vec;
     std::vector<geometry_msgs::Point> m_right_boundary_vec;

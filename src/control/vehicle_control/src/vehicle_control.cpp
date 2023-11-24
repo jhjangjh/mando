@@ -1,6 +1,6 @@
 #include <vehicle_control.hpp>
 
-VehicleControl::VehicleControl(ros::NodeHandle &nh_){
+VehicleControl::VehicleControl(ros::NodeHandle &nh_) : lanelet_utm_projector(Origin(lanelet_origin)){
     
     // Ini initialization
     std::string dir(getenv("PWD"));
@@ -14,7 +14,10 @@ VehicleControl::VehicleControl(ros::NodeHandle &nh_){
     p_cross_track_error_pub = nh_.advertise<std_msgs::Float32>("/hmi/cross_track_error", 100);
     p_yaw_error_pub = nh_.advertise<std_msgs::Float32>("/hmi/yaw_error", 100);
 
-    s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 1, &VehicleControl::OdomCallback, this);
+    // s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 1, &VehicleControl::OdomCallback, this);
+    // s_gnss_sub = nh_.subscribe("/carla/ego_vehicle/gnss", 1, &VehicleControl::GnssCallback, this);
+    s_tf_sub = nh_.subscribe("/tf",1000,&VehicleControl::TfCallback,this);
+    s_vs_sub = nh_.subscribe("/carla/ego_vehicle/vehicle_status",10,&VehicleControl::VsCallback,this);
     s_trajectory_sub = nh_.subscribe("/trajectory",1, &VehicleControl::TrajectoryCallback, this);
     s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &VehicleControl::MissionCallback, this);
     s_tunnel_point_sub = nh_.subscribe("/tunnel_target_point", 10, &VehicleControl::TunnelPointCallback, this);
@@ -32,9 +35,33 @@ void VehicleControl::TunnelPointCallback(const geometry_msgs::PointConstPtr &in_
     m_tunnel_point = *in_point_msg;
 }
 
-void VehicleControl::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
-    m_odom.pose = in_odom_msg->pose;
-    m_odom.twist = in_odom_msg->twist;
+// void VehicleControl::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
+//     // m_odom.pose = in_odom_msg->pose;
+//     m_odom.twist = in_odom_msg->twist;
+// }
+
+// void VehicleControl::GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg){
+//     m_location_xyz= lanelet_utm_projector.forward(lanelet::GPSPoint{in_gnss_msg->latitude,in_gnss_msg->longitude,0});     // my gnss projection result
+//     m_odom.pose.pose.position.x=m_location_xyz.x();
+//     m_odom.pose.pose.position.x=m_location_xyz.y();
+//     // m_gnss.latitude = in_gnss_msg->latitude;
+//     // m_gnss.longitude = in_gnss_msg->longitude;
+// }
+
+void VehicleControl::TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg) {
+    // std::cout << in_tf_msg << std::endl;
+    listener.lookupTransform("map","ego_vehicle",ros::Time(0),m_ego_vehicle_transform);
+    m_odom.pose.pose.position.x = m_ego_vehicle_transform.getOrigin().x();
+    m_odom.pose.pose.position.y = m_ego_vehicle_transform.getOrigin().y();
+    m_odom.pose.pose.position.z = m_ego_vehicle_transform.getOrigin().z();
+    m_odom.pose.pose.orientation.x = m_ego_vehicle_transform.getRotation().x();
+    m_odom.pose.pose.orientation.y = m_ego_vehicle_transform.getRotation().y();
+    m_odom.pose.pose.orientation.z = m_ego_vehicle_transform.getRotation().z();
+    m_odom.pose.pose.orientation.w = m_ego_vehicle_transform.getRotation().w();
+}
+
+void VehicleControl::VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg){
+    vs_velocity = in_vs_msg->velocity * 3.6;        // kph
 }
 
 void VehicleControl::TrajectoryCallback(const kucudas_msgs::TrajectoryConstPtr &in_trajectory_msg){
@@ -177,7 +204,7 @@ void VehicleControl::UpdateState()
     m.getRPY(roll,pitch,yaw);
     m_yaw = yaw;
 
-    m_velocity = sqrt(pow(m_odom.twist.twist.linear.x,2)+pow(m_odom.twist.twist.linear.y,2)) * 3.6;  // kph
+    m_velocity = vs_velocity;  // kph
 }
 
 double VehicleControl::PIDControl(double desired_velocity)

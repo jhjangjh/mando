@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   jsk_rviz_plugins
   lanelet2_io
   lanelet2_projection
+  lanelet2_core
 )
 
 ## System dependencies are found with CMake's conventions

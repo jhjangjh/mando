@@ -1,6 +1,6 @@
 #include <local_planning.hpp>
 
-LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
+LocalPlanning::LocalPlanning(ros::NodeHandle &nh_) : lanelet_utm_projector(Origin(lanelet_origin)){
     
     // Ini initialization
     std::string dir(getenv("PWD"));
@@ -13,7 +13,10 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_){
     s_global_route1_sub = nh_.subscribe("/adas/planning/global_route1", 1000, &LocalPlanning::Route1Callback, this);
     s_global_route2_sub = nh_.subscribe("/adas/planning/global_route2", 1000, &LocalPlanning::Route2Callback, this);
     s_global_route3_sub = nh_.subscribe("/adas/planning/global_route3", 1000, &LocalPlanning::Route3Callback, this);
-    s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &LocalPlanning::OdomCallback, this);
+    // s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &LocalPlanning::OdomCallback, this);
+    // s_gnss_sub = nh_.subscribe("/carla/ego_vehicle/gnss", 1, &LocalPlanning::GnssCallback, this);
+    s_tf_sub = nh_.subscribe("/tf",1000,&LocalPlanning::TfCallback,this);
+    s_vs_sub = nh_.subscribe("/carla/ego_vehicle/vehicle_status",10,&LocalPlanning::VsCallback,this);
     s_ahead_vehicle_sub = nh_.subscribe("/adas/perception/ahead_vehicle_info", 10, &LocalPlanning::AheadVehicleCallback, this);
     s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &LocalPlanning::MissionCallback, this);
     s_traffic_light_sub = nh_.subscribe("/yolov5/traffic_light_signal", 10, &LocalPlanning::TrafficLightCallback, this);
@@ -59,9 +62,32 @@ void LocalPlanning::Route3Callback(const geometry_msgs::PoseArrayConstPtr &in_ro
     }
 }
 
-void LocalPlanning::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
-    m_odom.pose = in_odom_msg->pose;
-    m_odom.twist = in_odom_msg->twist;
+// void LocalPlanning::OdomCallback(const nav_msgs::OdometryConstPtr &in_odom_msg){
+//     // m_odom.pose = in_odom_msg->pose;
+//     m_odom.twist = in_odom_msg->twist;
+// }
+
+// void LocalPlanning::GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg){
+//     m_location_xyz= lanelet_utm_projector.forward(lanelet::GPSPoint{in_gnss_msg->latitude,in_gnss_msg->longitude,0});     // my gnss projection result
+//     m_odom.pose.pose.position.x=m_location_xyz.x();
+//     m_odom.pose.pose.position.x=m_location_xyz.y();
+//     // m_gnss.latitude = in_gnss_msg->latitude;
+//     // m_gnss.longitude = in_gnss_msg->longitude;
+// }
+
+void LocalPlanning::TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg) {
+    listener.lookupTransform("map","ego_vehicle",ros::Time(0),m_ego_vehicle_transform);
+    m_odom.pose.pose.position.x = m_ego_vehicle_transform.getOrigin().x();
+    m_odom.pose.pose.position.y = m_ego_vehicle_transform.getOrigin().y();
+    m_odom.pose.pose.position.z = m_ego_vehicle_transform.getOrigin().z();
+    m_odom.pose.pose.orientation.x = m_ego_vehicle_transform.getRotation().x();
+    m_odom.pose.pose.orientation.y = m_ego_vehicle_transform.getRotation().y();
+    m_odom.pose.pose.orientation.z = m_ego_vehicle_transform.getRotation().z();
+    m_odom.pose.pose.orientation.w = m_ego_vehicle_transform.getRotation().w();
+}
+
+void LocalPlanning::VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg){
+    vs_velocity = in_vs_msg->velocity * 3.6;        // kph
 }
 
 void LocalPlanning::AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg){
@@ -139,7 +165,7 @@ void LocalPlanning::UpdateState()
     m.getRPY(roll,pitch,yaw);
     m_yaw = yaw;
 
-    m_velocity = sqrt(pow(m_odom.twist.twist.linear.x,2)+pow(m_odom.twist.twist.linear.y,2)) * 3.6;  // kph
+    m_velocity = vs_velocity;  // kph
 }
 
 void LocalPlanning::MakeTrajectory()
