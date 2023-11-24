@@ -40,16 +40,18 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/segmentation/extract_clusters.h>
-
 // Mission Define
 #define NORMAL_DRIVE 0
-#define STATIC_OBSTACLE_1 1
-#define TRAFFIC_LIGHT 2
-#define ROTARY 3
-#define DYNAMIC_OBSTACLE 4
-#define PARKING 5
-#define TUNNEL 6
-#define STATIC_OBSTACLE_3 7
+#define TRAFFIC_LIGHT_1 1
+#define TRAFFIC_LIGHT_2 2
+#define TRAFFIC_LIGHT_3 3
+#define TRAFFIC_LIGHT_4 4
+#define TRAFFIC_LIGHT_5 5
+#define TRAFFIC_LIGHT_6 6
+#define TRAFFIC_LIGHT_7 7
+#define TRAFFIC_LIGHT_8 8
+#define LOOP 9
+#define TUNNEL 10 
 
 class PedestrianLidar {
 
