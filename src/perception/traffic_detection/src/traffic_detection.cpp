@@ -46,6 +46,18 @@
 #define _2_BLOCK 2
 #define _1_2_BLOCK 3
 
+#define NORMAL_DRIVE 0
+#define TRAFFIC_LIGHT_1 1
+#define TRAFFIC_LIGHT_2 2
+#define TRAFFIC_LIGHT_3 3
+#define TRAFFIC_LIGHT_4 4
+#define TRAFFIC_LIGHT_5 5
+#define TRAFFIC_LIGHT_6 6
+#define TRAFFIC_LIGHT_7 7
+#define TRAFFIC_LIGHT_8 8
+#define LOOP 9
+#define TUNNEL 10
+
 // Namespace
 using namespace lanelet;
 
@@ -62,7 +74,8 @@ public:
     void GlobalRoute_1_Callback(const geometry_msgs::PoseArrayConstPtr &in_global_route_1);
     void GlobalRoute_2_Callback(const geometry_msgs::PoseArrayConstPtr &in_global_route_2);
     void GlobalRoute_3_Callback(const geometry_msgs::PoseArrayConstPtr &in_global_route_3);
-    
+    void MissionState_Callback(const std_msgs::Int8ConstPtr &in_mission_state);
+
     bool is_Route_1_block(double threshold);
     bool is_Route_2_block(double threshold);
     bool is_Route_3_block(double threshold);
@@ -81,6 +94,7 @@ private:
     ros::Subscriber s_global_route_1;
     ros::Subscriber s_global_route_2;
     ros::Subscriber s_global_route_3;
+    ros::Subscriber s_mission_state;
 
     // Variales
     nav_msgs::Odometry m_odom;
@@ -88,6 +102,8 @@ private:
     geometry_msgs::PoseArray m_global_route_1;
     geometry_msgs::PoseArray m_global_route_2;
     geometry_msgs::PoseArray m_global_route_3;
+    int m_mission_state = NORMAL_DRIVE;
+    int m_traffic_light = GREEN;
         
     // tf Variables
     tf::TransformListener listener;
@@ -102,7 +118,8 @@ Detection::Detection(ros::NodeHandle &nh_){
     s_global_route_1 = nh_.subscribe("/adas/planning/global_route1", 1, &Detection::GlobalRoute_1_Callback, this);
     s_global_route_2 = nh_.subscribe("/adas/planning/global_route2", 1, &Detection::GlobalRoute_2_Callback, this);
     s_global_route_3 = nh_.subscribe("/adas/planning/global_route3", 1, &Detection::GlobalRoute_3_Callback, this);
-    
+    s_mission_state = nh_.subscribe("/adas/planning/mission", 1, &Detection::MissionState_Callback, this);
+
     p_object_block_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/block", 10);
     p_traffic_info_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/traffic", 10);
     Init();
@@ -138,20 +155,41 @@ void Detection::AheadVehicleCallback(const visualization_msgs::MarkerArrayConstP
 }
 
 void Detection::TrafficLightCallback(const carla_msgs::CarlaTrafficLightStatusListConstPtr &traffic_light_list_msg){
+    int container_local_carla_diff = 37;
+    m_traffic_light=GREEN;
+
     for(auto light : traffic_light_list_msg->traffic_lights){
-        if(light.id==39){
-            if(light.state == RED){
-                ROS_INFO_STREAM("RED");
-            }
-            if(light.state == GREEN){
-                ROS_INFO_STREAM("GREEN");
-            }
-            if(light.state == GREEN_){
-                ROS_INFO_STREAM("GREEN_");
-            }
-            if(light.state == YELLOW){
-                ROS_INFO_STREAM("YELLOW");
-            }
+
+        if((light.id - container_local_carla_diff)==31 && m_mission_state==TRAFFIC_LIGHT_1){
+            m_traffic_light=light.state;
+        }
+
+        if((light.id - container_local_carla_diff)==29 && m_mission_state==TRAFFIC_LIGHT_2){
+            m_traffic_light=light.state;
+        }
+
+        if((light.id - container_local_carla_diff)==27 && m_mission_state==TRAFFIC_LIGHT_3){
+            m_traffic_light=light.state;
+        }
+
+        if((light.id - container_local_carla_diff)==51 && m_mission_state==TRAFFIC_LIGHT_4){
+            m_traffic_light=light.state;
+        }
+
+        if((light.id - container_local_carla_diff)==47 && m_mission_state==TRAFFIC_LIGHT_5){
+            m_traffic_light=light.state;
+        }
+
+        if((light.id - container_local_carla_diff)==41 && m_mission_state==TRAFFIC_LIGHT_6){
+            m_traffic_light=light.state;
+        }
+
+        if((light.id - container_local_carla_diff)==50 && m_mission_state==TRAFFIC_LIGHT_7){
+            m_traffic_light=light.state;
+        }
+
+        if((light.id - container_local_carla_diff)==26 && m_mission_state==TRAFFIC_LIGHT_8){
+            m_traffic_light=light.state;
         }
     }
 }
@@ -178,6 +216,10 @@ void Detection::GlobalRoute_3_Callback(const geometry_msgs::PoseArrayConstPtr &i
             m_global_route_3.poses.push_back(waypoint);
         }
     }
+}
+
+void Detection::MissionState_Callback(const std_msgs::Int8ConstPtr &in_mission_state){
+    m_mission_state = in_mission_state->data;
 }
 
 bool Detection::is_Route_1_block(double threshold){
@@ -290,7 +332,7 @@ void Detection::Run(){
         block_int = NO_BLOCK;
     }
 
-    int traffic_int = GREEN;
+    int traffic_int = m_traffic_light;
 
     Publish(block_int, traffic_int);
 }

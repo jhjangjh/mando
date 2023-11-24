@@ -119,11 +119,9 @@ void MissionGenerator::ReadOSMFile(){
     ErrorMessages errors;
     ROS_INFO_STREAM("Reading "<<map_path<<"...");
     lanelet_map = load(map_path, lanelet_utm_projector, &errors);
-    ROS_INFO_STREAM("111");
 
     // assert(errors.empty());
 
-    ROS_INFO_STREAM("222");
 
     LineString3d left_boundary, right_boundary, lane_1, lane_loop, lane_2;
 
@@ -135,7 +133,6 @@ void MissionGenerator::ReadOSMFile(){
         temp.y = point.y();
         m_left_boundary_vec.push_back(temp);
     }
-    ROS_INFO_STREAM("333");        
     // ROS_INFO_STREAM("m_lanelet_lane1_vec size : " << m_lanelet_lane1_vec.size());
 
     right_boundary = lanelet_map->lineStringLayer.get(RIGHT_BOUNDARY_ID);     
@@ -220,87 +217,101 @@ void MissionGenerator::MakeGlobalRoute()
 }
 
 void MissionGenerator::GenerateMission(){
-    m_mission = NORMAL_DRIVE;
-    // if(m_closest_id<180)
-    // {
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // }
-    // else if(m_closest_id<230)
-    // { 
-    //     m_mission = STATIC_OBSTACLE_1;
-    //     mission_msg.data = m_mission;
-    // }
-    // else if(m_closest_id<240)
-    // { 
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // }
-    // else if(m_closest_id<252)
-    // { 
-    //     m_mission = TRAFFIC_LIGHT;
-    //     mission_msg.data = m_mission;
-    // }          
-    // else if(m_closest_id<308)
-    // { 
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // }          
-    // else if(m_closest_id<393)
-    // { 
-    //     m_mission = ROTARY;
-    //     mission_msg.data = m_mission;
-    // }          
-    // else if(m_closest_id<425)
-    // { 
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // } 
-    // else if(m_closest_id<440)
-    // { 
-    //     m_mission = TRAFFIC_LIGHT;
-    //     mission_msg.data = m_mission;
-    // }             
-    // else if(m_closest_id<470)
-    // { 
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // }             
-    // else if(m_closest_id<495)
-    // { 
-    //     m_mission = DYNAMIC_OBSTACLE;
-    //     mission_msg.data = m_mission;
-    // }             
-    // // else if(m_closest_id<1420)
-    // // { 
-    // //     m_mission = PARKING;
-    // //     mission_msg.data = m_mission;
-    // // }             
-    // else if(m_closest_id<555)
-    // { 
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // }             
-    // else if(m_closest_id<717)
-    // { 
-    //     m_mission = TUNNEL;
-    //     mission_msg.data = m_mission;
-    // }
-    // else if(m_closest_id<735)
-    // { 
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // }
-    // else if(m_closest_id<821)
-    // { 
-    //     m_mission = STATIC_OBSTACLE_3;
-    //     mission_msg.data = m_mission;
-    // }
-    // else
-    // {
-    //     m_mission = NORMAL_DRIVE;
-    //     mission_msg.data = m_mission;
-    // }
+    if(m_closest_id<894)
+    {
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<923)
+    { 
+        m_mission = TRAFFIC_LIGHT_1;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<1155)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<1190)
+    { 
+        m_mission = TRAFFIC_LIGHT_2;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<1715)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<1742)
+    { 
+        m_mission = TRAFFIC_LIGHT_3;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<1900)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    } 
+    else if(m_closest_id<1935)
+    { 
+        m_mission = TRAFFIC_LIGHT_4;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2040)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2053)
+    { 
+        m_mission = TRAFFIC_LIGHT_5;
+        mission_msg.data = m_mission;
+    } 
+    else if(m_closest_id<2161)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2182)
+    { 
+        m_mission = TRAFFIC_LIGHT_6;
+        mission_msg.data = m_mission;
+    }      
+    else if(m_closest_id<2280)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2301)
+    { 
+        m_mission = TRAFFIC_LIGHT_7;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<2355)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2789)
+    { 
+        m_mission = TUNNEL;
+        mission_msg.data = m_mission;
+    }      
+    else if(m_closest_id<2928)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2957)
+    { 
+        m_mission = TRAFFIC_LIGHT_8;
+        mission_msg.data = m_mission;
+    } 
+    else
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
 }
 
 void MissionGenerator::UpdateState()
@@ -532,38 +543,38 @@ void MissionGenerator::UpdateRviz()
 
     // MISSION VISUALIZATION
     jsk_rviz_plugins::OverlayText temp_rviz_mission_msg;
-    if(m_mission == STATIC_OBSTACLE_1)
-    {
-        temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_1]";
-    }
-    else if(m_mission == TRAFFIC_LIGHT)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT]";
-    }
-    else if(m_mission == ROTARY)
-    {
-        temp_rviz_mission_msg.text = "[ROTARY]";
-    }
-    else if(m_mission == DYNAMIC_OBSTACLE)
-    {
-        temp_rviz_mission_msg.text = "[DYNAMIC_OBSTACLE]";
-    }
-    else if(m_mission == PARKING)
-    {
-        temp_rviz_mission_msg.text = "[PARKING]";
-    }
-    else if(m_mission == TUNNEL)
-    {
-        temp_rviz_mission_msg.text = "[TUNNEL]";
-    }    
-    else if(m_mission == STATIC_OBSTACLE_3)
-    {
-        temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_3]";
-    }
-    else
-    {
-        temp_rviz_mission_msg.text = "[NORMAL_DRIVE]";
-    }
+    // if(m_mission == STATIC_OBSTACLE_1)
+    // {
+    //     temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_1]";
+    // }
+    // else if(m_mission == TRAFFIC_LIGHT)
+    // {
+    //     temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT]";
+    // }
+    // else if(m_mission == ROTARY)
+    // {
+    //     temp_rviz_mission_msg.text = "[ROTARY]";
+    // }
+    // else if(m_mission == DYNAMIC_OBSTACLE)
+    // {
+    //     temp_rviz_mission_msg.text = "[DYNAMIC_OBSTACLE]";
+    // }
+    // else if(m_mission == PARKING)
+    // {
+    //     temp_rviz_mission_msg.text = "[PARKING]";
+    // }
+    // else if(m_mission == TUNNEL)
+    // {
+    //     temp_rviz_mission_msg.text = "[TUNNEL]";
+    // }    
+    // else if(m_mission == STATIC_OBSTACLE_3)
+    // {
+    //     temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_3]";
+    // }
+    // else
+    // {
+    //     temp_rviz_mission_msg.text = "[NORMAL_DRIVE]";
+    // }
 
     rviz_mission_msg = temp_rviz_mission_msg;
 }
