@@ -9,6 +9,7 @@ typedef struct {
     bool use_manual_desired_velocity;
     double manual_desired_velocity;
     double tunnel_velocity;
+    bool use_tunnel_lidar;
 } LongitudinalControlParameters;
 
 #endif  // __LONGITUDINAL_CONTROL_CONFIG_HPP__

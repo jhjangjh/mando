@@ -75,55 +75,64 @@ void VehicleControl::Init(){
 void VehicleControl::Run(){
     ProcessINI();
     UpdateState();
-    // if(m_trajectory.point.size()!=0)
-    // {
-    //     m_closest_point = FindClosestPoint();
-    //     double lookahead_distance = SetLookAheadDistance();
-    //     m_target_point = FindTargetPoint(m_closest_point, lookahead_distance);
 
-    //     double pid_error;
-    //     if(longitudinal_control_params_.use_manual_desired_velocity)
-    //     {
-    //         pid_error = PIDControl(longitudinal_control_params_.manual_desired_velocity);
-    //     }
-    //     else
-    //     {
-    //         pid_error = PIDControl(m_target_point.speed);
-    //     }
-
-    //     double steering_angle;
-    //     steering_angle = PurePursuit(m_target_point);
-
-    //     SetControlCmd(pid_error, steering_angle);
-    //     UpdateControlState();
-
-    //     if(m_print_count++ % 10 == 0)
-    //     {
-    //         ROS_INFO_STREAM("Vehicle Control is running...");
-    //     }
-    // }
-    // else
-    // {
-    //     ROS_WARN_STREAM("Waiting Trajectory...");
-    // }
-    
-    if(m_mission==TUNNEL)
+    // TUNNEL LIDAR ON MODE 
+    if(longitudinal_control_params_.use_tunnel_lidar)
     {
-        double pid_error;
-        pid_error = PIDControl(longitudinal_control_params_.tunnel_velocity);
-        double steering_angle;
-        m_target_point.x = m_tunnel_point.x;
-        m_target_point.y = m_tunnel_point.y;
-        steering_angle = PurePursuit(m_target_point);
-
-        SetControlCmd(pid_error, steering_angle);
-        UpdateControlState();
-
-        if(m_print_count++ % 10 == 0)
+        if(m_mission==TUNNEL)
         {
-            ROS_WARN_STREAM(" [Tunnel] Vehicle Control is running...");
+            double pid_error;
+            pid_error = PIDControl(longitudinal_control_params_.tunnel_velocity);
+            double steering_angle;
+            m_target_point.x = m_tunnel_point.x;
+            m_target_point.y = m_tunnel_point.y;
+            steering_angle = PurePursuit(m_target_point);
+
+            SetControlCmd(pid_error, steering_angle);
+            UpdateControlState();
+
+            if(m_print_count++ % 10 == 0)
+            {
+                ROS_WARN_STREAM(" [Tunnel] Vehicle Control is running...");
+            }
+        }
+        else
+        {
+            if(m_trajectory.point.size()!=0)
+            {
+                m_closest_point = FindClosestPoint();
+                double lookahead_distance = SetLookAheadDistance();
+                m_target_point = FindTargetPoint(m_closest_point, lookahead_distance);
+
+                double pid_error;
+                if(longitudinal_control_params_.use_manual_desired_velocity)
+                {
+                    pid_error = PIDControl(longitudinal_control_params_.manual_desired_velocity);
+                }
+                else
+                {
+                    pid_error = PIDControl(m_target_point.speed);
+                }
+
+                double steering_angle;
+                steering_angle = PurePursuit(m_target_point);
+
+                SetControlCmd(pid_error, steering_angle);
+                UpdateControlState();
+
+                if(m_print_count++ % 10 == 0)
+                {
+                    ROS_INFO_STREAM("Vehicle Control is running...");
+                }
+            }
+            else
+            {
+                ROS_WARN_STREAM("Waiting Trajectory...");
+            }
         }
     }
+
+    // TUNNEL LIDAR OFF MODE 
     else
     {
         if(m_trajectory.point.size()!=0)
@@ -159,6 +168,8 @@ void VehicleControl::Run(){
         }
     }
     
+
+    
 }
 
 void VehicleControl::Publish(){
@@ -184,6 +195,8 @@ void VehicleControl::ProcessINI(){
                                     longitudinal_control_params_.manual_desired_velocity);
         v_ini_parser_.ParseConfig("longitudinal_control", "tunnel_velocity",
                                     longitudinal_control_params_.tunnel_velocity);
+        v_ini_parser_.ParseConfig("longitudinal_control", "use_tunnel_lidar",
+                                    longitudinal_control_params_.use_tunnel_lidar);
         v_ini_parser_.ParseConfig("lateral_control", "max_lookahead_distance",
                                     lateral_control_params_.max_lookahead_distance);
         v_ini_parser_.ParseConfig("lateral_control", "min_lookahead_distance",

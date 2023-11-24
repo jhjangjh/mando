@@ -1,7 +1,5 @@
 <launch>
     <!-- Perception -->
-    <node pkg='object_detection' name='object_detection' type='object_detection'>
-    </node>  
     <node pkg='tunnel_lidar' name='tunnel_lidar' type='tunnel_lidar'>
     </node>  
 
