@@ -147,48 +147,56 @@ void Detection::AheadVehicleCallback(const visualization_msgs::MarkerArrayConstP
     for(auto point : in_ahead_vehicle_info_msg->markers){
         
         distance = sqrt(pow((point.pose.position.x - m_odom.pose.pose.position.x),2) + pow((point.pose.position.y - m_odom.pose.pose.position.y),2));
-        if(distance<10 && distance>1.0){
-            ROS_WARN_STREAM("distance : "<<distance);
+        if(distance<15 && distance>1.0){
+            // ROS_WARN_STREAM("distance : "<<distance);
             m_vehicle_posearray.poses.push_back(point.pose);
         }
     }
 }
 
 void Detection::TrafficLightCallback(const carla_msgs::CarlaTrafficLightStatusListConstPtr &traffic_light_list_msg){
-    int container_local_carla_diff = 37;
+    int container_local_carla_diff = 0;
     m_traffic_light=GREEN;
 
     for(auto light : traffic_light_list_msg->traffic_lights){
 
-        if((light.id - container_local_carla_diff)==31 && m_mission_state==TRAFFIC_LIGHT_1){
+        if(((light.id - container_local_carla_diff)==31) && (m_mission_state==TRAFFIC_LIGHT_1)){
+            ROS_WARN_STREAM("1");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==29 && m_mission_state==TRAFFIC_LIGHT_2){
+        if(((light.id - container_local_carla_diff)==29) && (m_mission_state==TRAFFIC_LIGHT_2)){
+            ROS_WARN_STREAM("2");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==27 && m_mission_state==TRAFFIC_LIGHT_3){
+        if(((light.id - container_local_carla_diff)==27) && (m_mission_state==TRAFFIC_LIGHT_3)){
+            ROS_WARN_STREAM("3");
             m_traffic_light=light.state;
         }
 
         if((light.id - container_local_carla_diff)==51 && m_mission_state==TRAFFIC_LIGHT_4){
+            ROS_WARN_STREAM("4");
             m_traffic_light=light.state;
         }
 
         if((light.id - container_local_carla_diff)==47 && m_mission_state==TRAFFIC_LIGHT_5){
+            ROS_WARN_STREAM("5");
             m_traffic_light=light.state;
         }
 
         if((light.id - container_local_carla_diff)==41 && m_mission_state==TRAFFIC_LIGHT_6){
+            ROS_WARN_STREAM("6");
             m_traffic_light=light.state;
         }
 
         if((light.id - container_local_carla_diff)==50 && m_mission_state==TRAFFIC_LIGHT_7){
+            ROS_WARN_STREAM("7");
             m_traffic_light=light.state;
         }
 
         if((light.id - container_local_carla_diff)==26 && m_mission_state==TRAFFIC_LIGHT_8){
+            ROS_WARN_STREAM("8");
             m_traffic_light=light.state;
         }
     }
