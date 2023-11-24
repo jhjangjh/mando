@@ -12,14 +12,14 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_) : lanelet_utm_projector(Origi
 
     s_global_route1_sub = nh_.subscribe("/adas/planning/global_route1", 1000, &LocalPlanning::Route1Callback, this);
     s_global_route2_sub = nh_.subscribe("/adas/planning/global_route2", 1000, &LocalPlanning::Route2Callback, this);
-    s_global_route3_sub = nh_.subscribe("/adas/planning/global_route3", 1000, &LocalPlanning::Route3Callback, this);
+    s_loop_route_sub = nh_.subscribe("/adas/planning/loop_route", 1000, &LocalPlanning::Route3Callback, this);
     // s_odom_sub = nh_.subscribe("/carla/ego_vehicle/odometry", 10, &LocalPlanning::OdomCallback, this);
     // s_gnss_sub = nh_.subscribe("/carla/ego_vehicle/gnss", 1, &LocalPlanning::GnssCallback, this);
     s_tf_sub = nh_.subscribe("/tf",1000,&LocalPlanning::TfCallback,this);
     s_vs_sub = nh_.subscribe("/carla/ego_vehicle/vehicle_status",10,&LocalPlanning::VsCallback,this);
-    s_ahead_vehicle_sub = nh_.subscribe("/adas/perception/ahead_vehicle_info", 10, &LocalPlanning::AheadVehicleCallback, this);
+    s_object_block_sub = nh_.subscribe("/adas/planning/block", 10, &LocalPlanning::AheadVehicleCallback, this);
     s_mission_sub = nh_.subscribe("/adas/planning/mission", 10, &LocalPlanning::MissionCallback, this);
-    s_traffic_light_sub = nh_.subscribe("/yolov5/traffic_light_signal", 10, &LocalPlanning::TrafficLightCallback, this);
+    s_traffic_light_sub = nh_.subscribe("/adas/planning/traffic", 10, &LocalPlanning::TrafficLightCallback, this);
 
     Init();
 }
@@ -28,23 +28,24 @@ LocalPlanning::~LocalPlanning(){}
 
 void LocalPlanning::Route1Callback(const geometry_msgs::PoseArrayConstPtr &in_route1_msg)
 {
-    if(m_lane_left_vec.size() == 0)
+    if(m_lane_1_vec.size() == 0)
     {
         for(auto waypoint : in_route1_msg->poses)
         {
-            m_lane_left_vec.push_back(waypoint.position);
+            m_lane_1_vec.push_back(waypoint.position);
         }
         get_global_route1 = true;
+        m_waypoint_vec = m_lane_1_vec;
     }
 }
 
 void LocalPlanning::Route2Callback(const geometry_msgs::PoseArrayConstPtr &in_route2_msg)
 {
-    if(m_lane_center_vec.size() == 0)
+    if(m_lane_2_vec.size() == 0)
     {
         for(auto waypoint : in_route2_msg->poses)
         {
-            m_lane_center_vec.push_back(waypoint.position);
+            m_lane_2_vec.push_back(waypoint.position);
         }
         get_global_route2 = true;
     }
@@ -52,13 +53,13 @@ void LocalPlanning::Route2Callback(const geometry_msgs::PoseArrayConstPtr &in_ro
 
 void LocalPlanning::Route3Callback(const geometry_msgs::PoseArrayConstPtr &in_route3_msg)
 {
-    if(m_lane_right_vec.size() == 0)
+    if(m_lane_loop_vec.size() == 0)
     {
         for(auto waypoint : in_route3_msg->poses)
         {
-            m_lane_right_vec.push_back(waypoint.position);
+            m_lane_loop_vec.push_back(waypoint.position);
         }
-        get_global_route3 = true;
+        get_loop_route = true;
     }
 }
 
@@ -90,27 +91,29 @@ void LocalPlanning::VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &
     vs_velocity = in_vs_msg->velocity * 3.6;        // kph
 }
 
-void LocalPlanning::AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg){
-    m_ahead_vehicle_info = *in_ahead_vehicle_info_msg;
+void LocalPlanning::AheadVehicleCallback(const std_msgs::Int8ConstPtr &in_ahead_vehicle_info_msg){
+    m_block = in_ahead_vehicle_info_msg->data;
 }
 
 void LocalPlanning::MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg){
     m_mission = in_mission_msg->data;
 }
 
-void LocalPlanning::TrafficLightCallback(const std_msgs::Bool &traffic_light_msg){
-    // if traffic_stop == True => STOP!!!!!!  (case : Red, Yellow)
-    traffic_stop = traffic_light_msg.data;
+void LocalPlanning::TrafficLightCallback(const std_msgs::Int8ConstPtr &traffic_light_msg){
+    // if traffic_signal == True => STOP!!!!!!  (case : Red, Yellow)
+    traffic_signal = traffic_light_msg->data;
 }
 
 
 void LocalPlanning::Init(){
     ProcessINI();  
+
+    
 }
 
 void LocalPlanning::Run(){
     ProcessINI();
-    if(get_global_route1 && get_global_route2 && get_global_route3)
+    if(get_global_route1 && get_global_route2 && get_loop_route)
     {
         UpdateState();
         SelectWaypoint();
@@ -149,8 +152,15 @@ void LocalPlanning::ProcessINI(){
 }
 
 void LocalPlanning::SelectWaypoint(){
+
     // TBD
-    m_waypoint_vec = m_lane_center_vec;
+    if(m_block==_1_BLOCK){
+        m_waypoint_vec = m_lane_2_vec;    
+    }
+    else if(m_block==_2_BLOCK){
+        m_waypoint_vec = m_lane_1_vec;
+    }
+
 }
 
 void LocalPlanning::UpdateState()
@@ -346,7 +356,7 @@ double LocalPlanning::SpeedProfiling(double curvature)
         }
     }
 
-    if(m_mission == TRAFFIC_LIGHT && traffic_stop)
+    if((m_mission == TRAFFIC_LIGHT && (traffic_signal==RED||traffic_signal==YELLOW)) || (m_block == _1_2_BLOCK))
     {
         speed = 0.;
     }

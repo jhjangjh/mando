@@ -40,11 +40,11 @@
 // carla
 #include <carla_msgs/CarlaEgoVehicleStatus.h>
 
-#define LEFT_BOUNDARY_ID 4292
-#define RIGHT_BOUNDARY_ID 4530
-#define LANE_LEFT_ID -1370
-#define LANE_CENTER_ID 4531
-#define LANE_RIGHT_ID -1320
+#define LEFT_BOUNDARY_ID 14524
+#define RIGHT_BOUNDARY_ID 30621
+#define LANE_1_ID -5163
+#define LANE_2_ID -5162
+#define LANE_LOOP_ID -5164
 
 // Mission Define
 #define NORMAL_DRIVE 0
@@ -87,7 +87,7 @@ private:
     // Publisher
     ros::Publisher p_global_route1_pub;
     ros::Publisher p_global_route2_pub;
-    ros::Publisher p_global_route3_pub;
+    ros::Publisher p_loop_route_pub;
     ros::Publisher p_rviz_lane_pub;
     ros::Publisher p_mission_pub;
     ros::Publisher p_rviz_mission_pub;
@@ -101,7 +101,7 @@ private:
     // Messages
     geometry_msgs::PoseArray global_route1_msg;
     geometry_msgs::PoseArray global_route2_msg;
-    geometry_msgs::PoseArray global_route3_msg;
+    geometry_msgs::PoseArray loop_route_msg;
     visualization_msgs::MarkerArray lane_marker_array_msg;
     std_msgs::Int8 mission_msg;
     jsk_rviz_plugins::OverlayText rviz_mission_msg;
@@ -131,9 +131,9 @@ private:
 
     std::vector<geometry_msgs::Point> m_left_boundary_vec;
     std::vector<geometry_msgs::Point> m_right_boundary_vec;
-    std::vector<geometry_msgs::Point> m_lane_left_vec;
-    std::vector<geometry_msgs::Point> m_lane_center_vec;
-    std::vector<geometry_msgs::Point> m_lane_right_vec;
+    std::vector<geometry_msgs::Point> m_lane_1_vec;
+    std::vector<geometry_msgs::Point> m_lane_2_vec;
+    std::vector<geometry_msgs::Point> m_lane_loop_vec;
 
     geometry_msgs::Point m_closest_point;
     int m_closest_id;

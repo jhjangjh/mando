@@ -2,6 +2,8 @@
     <!-- Perception -->
     <node pkg='tunnel_lidar' name='tunnel_lidar' type='tunnel_lidar'>
     </node>  
+    <node pkg='traffic_detection' name='traffic_detection' type='traffic_detection'>
+    </node>  
 
     <!-- Planning -->
     <node pkg='mission_generator' name='mission_generator' type='mission_generator'>

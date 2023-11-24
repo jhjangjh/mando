@@ -9,7 +9,7 @@ MissionGenerator::MissionGenerator(ros::NodeHandle &nh_) : lanelet_utm_projector
     
     p_global_route1_pub = nh_.advertise<geometry_msgs::PoseArray>("/adas/planning/global_route1", 10);
     p_global_route2_pub = nh_.advertise<geometry_msgs::PoseArray>("/adas/planning/global_route2", 10);
-    p_global_route3_pub = nh_.advertise<geometry_msgs::PoseArray>("/adas/planning/global_route3", 10);
+    p_loop_route_pub = nh_.advertise<geometry_msgs::PoseArray>("/adas/planning/loop_route", 10);
     p_rviz_lane_pub = nh_.advertise<visualization_msgs::MarkerArray>("/hmi/lane", 10);
     p_mission_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/mission", 10);
     p_rviz_mission_pub = nh_.advertise<jsk_rviz_plugins::OverlayText>("/hmi/mission", 10);
@@ -76,7 +76,7 @@ void MissionGenerator::Run(){
 void MissionGenerator::Publish(){
     p_global_route1_pub.publish(global_route1_msg);
     p_global_route2_pub.publish(global_route2_msg);
-    p_global_route3_pub.publish(global_route3_msg);
+    p_loop_route_pub.publish(loop_route_msg);
     p_rviz_lane_pub.publish(lane_marker_array_msg);
     p_mission_pub.publish(mission_msg);
     p_rviz_mission_pub.publish(rviz_mission_msg);
@@ -86,7 +86,6 @@ void MissionGenerator::ProcessINI(){
     if (v_ini_parser_.IsFileUpdated()){
         // v_ini_parser_.ParseConfig("mission_generator", "xxx",
         //                             mission_generator_params_.xxx);
-
         ROS_WARN("[Mission Generator] Ini file is updated!\n");
     }
 }
@@ -113,16 +112,20 @@ void MissionGenerator::ReadOSMFile(){
     lastSlashPos = ws_srcDir.find_last_of('/');
     std::string wsDir = ws_srcDir.substr(0, lastSlashPos);
 
-    std::string osmPath = "/resources/Town03_competition.osm";
+    std::string osmPath = "/resources/Mando.osm";
 
     std::string map_path = wsDir + osmPath;
 
     ErrorMessages errors;
     ROS_INFO_STREAM("Reading "<<map_path<<"...");
     lanelet_map = load(map_path, lanelet_utm_projector, &errors);
-    assert(errors.empty());
+    ROS_INFO_STREAM("111");
 
-    LineString3d left_boundary, right_boundary, lane_left, lane_center, lane_right;
+    // assert(errors.empty());
+
+    ROS_INFO_STREAM("222");
+
+    LineString3d left_boundary, right_boundary, lane_1, lane_loop, lane_2;
 
     left_boundary = lanelet_map->lineStringLayer.get(LEFT_BOUNDARY_ID);
     for (auto point : left_boundary)
@@ -131,7 +134,8 @@ void MissionGenerator::ReadOSMFile(){
         temp.x = point.x();
         temp.y = point.y();
         m_left_boundary_vec.push_back(temp);
-    }        
+    }
+    ROS_INFO_STREAM("333");        
     // ROS_INFO_STREAM("m_lanelet_lane1_vec size : " << m_lanelet_lane1_vec.size());
 
     right_boundary = lanelet_map->lineStringLayer.get(RIGHT_BOUNDARY_ID);     
@@ -143,36 +147,36 @@ void MissionGenerator::ReadOSMFile(){
         m_right_boundary_vec.push_back(temp);
     }
 
-    lane_left = lanelet_map->lineStringLayer.get(LANE_LEFT_ID);     
-    for (auto point : lane_left)
+    lane_1 = lanelet_map->lineStringLayer.get(LANE_1_ID);     
+    for (auto point : lane_1)
     {
         geometry_msgs::Point temp;
         temp.x = point.x();
         temp.y = point.y();
-        m_lane_left_vec.push_back(temp);
+        m_lane_1_vec.push_back(temp);
     }
 
-    lane_center = lanelet_map->lineStringLayer.get(LANE_CENTER_ID);     
-    for (auto point : lane_center)
+    lane_2 = lanelet_map->lineStringLayer.get(LANE_2_ID);     
+    for (auto point : lane_2)
     {
         geometry_msgs::Point temp;
         temp.x = point.x();
         temp.y = point.y();
-        m_lane_center_vec.push_back(temp);
+        m_lane_2_vec.push_back(temp);
     }
 
-    lane_right = lanelet_map->lineStringLayer.get(LANE_RIGHT_ID);     
-    for (auto point : lane_right)
+    lane_loop = lanelet_map->lineStringLayer.get(LANE_LOOP_ID);     
+    for (auto point : lane_loop)
     {
         geometry_msgs::Point temp;
         temp.x = point.x();
         temp.y = point.y();
-        m_lane_right_vec.push_back(temp);
+        m_lane_loop_vec.push_back(temp);
     }
- 
+
     ROS_WARN_STREAM("Map Loaded!!!");
 
-    m_waypoint_vec = m_lane_center_vec;
+    m_waypoint_vec = m_lane_1_vec;
 
 }
 
@@ -181,7 +185,7 @@ void MissionGenerator::MakeGlobalRoute()
     geometry_msgs::PoseArray temp_global_route1;
     temp_global_route1.header.frame_id = "map";
     temp_global_route1.header.stamp = ros::Time::now();
-    for(auto element : m_lane_left_vec)
+    for(auto element : m_lane_1_vec)
     {
         geometry_msgs::Pose point;
         point.position = element;
@@ -191,109 +195,112 @@ void MissionGenerator::MakeGlobalRoute()
     geometry_msgs::PoseArray temp_global_route2;
     temp_global_route2.header.frame_id = "map";
     temp_global_route2.header.stamp = ros::Time::now();
-    for(auto element : m_lane_center_vec)
+    for(auto element : m_lane_2_vec)
     {
         geometry_msgs::Pose point;
         point.position = element;
         temp_global_route2.poses.push_back(point);
     }
 
-    geometry_msgs::PoseArray temp_global_route3;
-    temp_global_route2.header.frame_id = "map";
-    temp_global_route2.header.stamp = ros::Time::now();
-    for(auto element : m_lane_right_vec)
+    geometry_msgs::PoseArray temp_loop_route;
+    temp_loop_route.header.frame_id = "map";
+    temp_loop_route.header.stamp = ros::Time::now();
+    for(auto element : m_lane_loop_vec)
     {
         geometry_msgs::Pose point;
         point.position = element;
-        temp_global_route3.poses.push_back(point);
+        temp_loop_route.poses.push_back(point);
     }
+
+
 
     global_route1_msg = temp_global_route1;
     global_route2_msg = temp_global_route2;
-    global_route3_msg = temp_global_route3;
+    loop_route_msg = temp_loop_route;
 }
 
 void MissionGenerator::GenerateMission(){
-    if(m_closest_id<180)
-    {
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    }
-    else if(m_closest_id<230)
-    { 
-        m_mission = STATIC_OBSTACLE_1;
-        mission_msg.data = m_mission;
-    }
-    else if(m_closest_id<240)
-    { 
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    }
-    else if(m_closest_id<252)
-    { 
-        m_mission = TRAFFIC_LIGHT;
-        mission_msg.data = m_mission;
-    }          
-    else if(m_closest_id<308)
-    { 
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    }          
-    else if(m_closest_id<393)
-    { 
-        m_mission = ROTARY;
-        mission_msg.data = m_mission;
-    }          
-    else if(m_closest_id<425)
-    { 
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    } 
-    else if(m_closest_id<440)
-    { 
-        m_mission = TRAFFIC_LIGHT;
-        mission_msg.data = m_mission;
-    }             
-    else if(m_closest_id<470)
-    { 
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    }             
-    else if(m_closest_id<495)
-    { 
-        m_mission = DYNAMIC_OBSTACLE;
-        mission_msg.data = m_mission;
-    }             
-    // else if(m_closest_id<1420)
+    m_mission = NORMAL_DRIVE;
+    // if(m_closest_id<180)
+    // {
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // }
+    // else if(m_closest_id<230)
     // { 
-    //     m_mission = PARKING;
+    //     m_mission = STATIC_OBSTACLE_1;
+    //     mission_msg.data = m_mission;
+    // }
+    // else if(m_closest_id<240)
+    // { 
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // }
+    // else if(m_closest_id<252)
+    // { 
+    //     m_mission = TRAFFIC_LIGHT;
+    //     mission_msg.data = m_mission;
+    // }          
+    // else if(m_closest_id<308)
+    // { 
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // }          
+    // else if(m_closest_id<393)
+    // { 
+    //     m_mission = ROTARY;
+    //     mission_msg.data = m_mission;
+    // }          
+    // else if(m_closest_id<425)
+    // { 
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // } 
+    // else if(m_closest_id<440)
+    // { 
+    //     m_mission = TRAFFIC_LIGHT;
     //     mission_msg.data = m_mission;
     // }             
-    else if(m_closest_id<555)
-    { 
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    }             
-    else if(m_closest_id<717)
-    { 
-        m_mission = TUNNEL;
-        mission_msg.data = m_mission;
-    }
-    else if(m_closest_id<735)
-    { 
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    }
-    else if(m_closest_id<821)
-    { 
-        m_mission = STATIC_OBSTACLE_3;
-        mission_msg.data = m_mission;
-    }
-    else
-    {
-        m_mission = NORMAL_DRIVE;
-        mission_msg.data = m_mission;
-    }
+    // else if(m_closest_id<470)
+    // { 
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // }             
+    // else if(m_closest_id<495)
+    // { 
+    //     m_mission = DYNAMIC_OBSTACLE;
+    //     mission_msg.data = m_mission;
+    // }             
+    // // else if(m_closest_id<1420)
+    // // { 
+    // //     m_mission = PARKING;
+    // //     mission_msg.data = m_mission;
+    // // }             
+    // else if(m_closest_id<555)
+    // { 
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // }             
+    // else if(m_closest_id<717)
+    // { 
+    //     m_mission = TUNNEL;
+    //     mission_msg.data = m_mission;
+    // }
+    // else if(m_closest_id<735)
+    // { 
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // }
+    // else if(m_closest_id<821)
+    // { 
+    //     m_mission = STATIC_OBSTACLE_3;
+    //     mission_msg.data = m_mission;
+    // }
+    // else
+    // {
+    //     m_mission = NORMAL_DRIVE;
+    //     mission_msg.data = m_mission;
+    // }
 }
 
 void MissionGenerator::UpdateState()
@@ -390,83 +397,57 @@ void MissionGenerator::UpdateRviz()
 
     lanes.markers.push_back(lane2);
 
-    visualization_msgs::Marker lane_left;
-    lane_left.header.frame_id = "map";
-    lane_left.header.stamp = ros::Time::now();
-    lane_left.id = 3;
-    lane_left.action = visualization_msgs::Marker::ADD;
-    lane_left.type = visualization_msgs::Marker::LINE_LIST;
-    lane_left.lifetime = ros::Duration();
-    lane_left.scale.x = 0.3;
+    visualization_msgs::Marker lane_1;
+    lane_1.header.frame_id = "map";
+    lane_1.header.stamp = ros::Time::now();
+    lane_1.id = 3;
+    lane_1.action = visualization_msgs::Marker::ADD;
+    lane_1.type = visualization_msgs::Marker::LINE_LIST;
+    lane_1.lifetime = ros::Duration();
+    lane_1.scale.x = 0.3;
 
-    lane_left.color.r = 1.;
-    lane_left.color.g = 1.;
-    lane_left.color.b = 0.;
-    lane_left.color.a = 1.;
+    lane_1.color.r = 1.;
+    lane_1.color.g = 1.;
+    lane_1.color.b = 0.;
+    lane_1.color.a = 1.;
 
-    lane_left.pose.orientation.x = 0.0;
-    lane_left.pose.orientation.y = 0.0;
-    lane_left.pose.orientation.z = 0.0;
-    lane_left.pose.orientation.w = 1.0;
+    lane_1.pose.orientation.x = 0.0;
+    lane_1.pose.orientation.y = 0.0;
+    lane_1.pose.orientation.z = 0.0;
+    lane_1.pose.orientation.w = 1.0;
 
-    for(auto point : m_lane_left_vec)
+    for(auto point : m_lane_1_vec)
     {
-        lane_left.points.push_back(point);
+        lane_1.points.push_back(point);
     }
 
-    lanes.markers.push_back(lane_left);
+    lanes.markers.push_back(lane_1);
 
-    visualization_msgs::Marker lane_center;
-    lane_center.header.frame_id = "map";
-    lane_center.header.stamp = ros::Time::now();
-    lane_center.id = 4;
-    lane_center.action = visualization_msgs::Marker::ADD;
-    lane_center.type = visualization_msgs::Marker::LINE_LIST;
-    lane_center.lifetime = ros::Duration();
-    lane_center.scale.x = 0.3;
+    visualization_msgs::Marker lane_2;
+    lane_2.header.frame_id = "map";
+    lane_2.header.stamp = ros::Time::now();
+    lane_2.id = 5;
+    lane_2.action = visualization_msgs::Marker::ADD;
+    lane_2.type = visualization_msgs::Marker::LINE_LIST;
+    lane_2.lifetime = ros::Duration();
+    lane_2.scale.x = 0.3;
 
-    lane_center.color.r = 1.;
-    lane_center.color.g = 1.;
-    lane_center.color.b = 0.;
-    lane_center.color.a = 1.;
+    lane_2.color.r = 1.;
+    lane_2.color.g = 1.;
+    lane_2.color.b = 0.;
+    lane_2.color.a = 1.;
 
-    lane_center.pose.orientation.x = 0.0;
-    lane_center.pose.orientation.y = 0.0;
-    lane_center.pose.orientation.z = 0.0;
-    lane_center.pose.orientation.w = 1.0;
+    lane_2.pose.orientation.x = 0.0;
+    lane_2.pose.orientation.y = 0.0;
+    lane_2.pose.orientation.z = 0.0;
+    lane_2.pose.orientation.w = 1.0;
 
-    for(auto point : m_lane_center_vec)
+    for(auto point : m_lane_2_vec)
     {
-        lane_center.points.push_back(point);
+        lane_2.points.push_back(point);
     }
 
-    lanes.markers.push_back(lane_center);
-
-    visualization_msgs::Marker lane_right;
-    lane_right.header.frame_id = "map";
-    lane_right.header.stamp = ros::Time::now();
-    lane_right.id = 5;
-    lane_right.action = visualization_msgs::Marker::ADD;
-    lane_right.type = visualization_msgs::Marker::LINE_LIST;
-    lane_right.lifetime = ros::Duration();
-    lane_right.scale.x = 0.3;
-
-    lane_right.color.r = 1.;
-    lane_right.color.g = 1.;
-    lane_right.color.b = 0.;
-    lane_right.color.a = 1.;
-
-    lane_right.pose.orientation.x = 0.0;
-    lane_right.pose.orientation.y = 0.0;
-    lane_right.pose.orientation.z = 0.0;
-    lane_right.pose.orientation.w = 1.0;
-
-    for(auto point : m_lane_right_vec)
-    {
-        lane_right.points.push_back(point);
-    }
-
-    lanes.markers.push_back(lane_right);
+    lanes.markers.push_back(lane_2);
 
     visualization_msgs::Marker lane_center_1_road;
     lane_center_1_road.header.frame_id = "map";
@@ -487,7 +468,7 @@ void MissionGenerator::UpdateRviz()
     lane_center_1_road.pose.orientation.z = 0.0;
     lane_center_1_road.pose.orientation.w = 1.0;
 
-    for(auto point : m_lane_left_vec)
+    for(auto point : m_lane_1_vec)
     {
         lane_center_1_road.points.push_back(point);
     }
@@ -513,68 +494,41 @@ void MissionGenerator::UpdateRviz()
     lane_center_2_road.pose.orientation.z = 0.0;
     lane_center_2_road.pose.orientation.w = 1.0;
 
-    for(auto point : m_lane_right_vec)
+    for(auto point : m_lane_2_vec)
     {
         lane_center_2_road.points.push_back(point);
     }
 
     lanes.markers.push_back(lane_center_2_road);
 
+
+    visualization_msgs::Marker lane_loop;
+    lane_loop.header.frame_id = "map";
+    lane_loop.header.stamp = ros::Time::now();
+    lane_loop.id = 8;
+    lane_loop.action = visualization_msgs::Marker::ADD;
+    lane_loop.type = visualization_msgs::Marker::LINE_LIST;
+    lane_loop.lifetime = ros::Duration();
+    lane_loop.scale.x = 0.7;
+
+    lane_loop.color.r = 1.;
+    lane_loop.color.g = 1.;
+    lane_loop.color.b = 0.;
+    lane_loop.color.a = 1.;
+
+    lane_loop.pose.orientation.x = 0.0;
+    lane_loop.pose.orientation.y = 0.0;
+    lane_loop.pose.orientation.z = 0.0;
+    lane_loop.pose.orientation.w = 1.0;
+
+    for(auto point : m_lane_loop_vec)
+    {
+        lane_loop.points.push_back(point);
+    }
+
+    lanes.markers.push_back(lane_loop);
+
     lane_marker_array_msg = lanes;    
-
-    // visualization_msgs::Marker lane_center_1;
-    // lane_center_1.header.frame_id = "map";
-    // lane_center_1.header.stamp = ros::Time::now();
-    // lane_center_1.id = 4;
-    // lane_center_1.action = visualization_msgs::Marker::ADD;
-    // lane_center_1.type = visualization_msgs::Marker::LINE_LIST;
-    // lane_center_1.lifetime = ros::Duration();
-    // lane_center_1.scale.x = 0.3;
-
-    // lane_center_1.color.r = 1.;
-    // lane_center_1.color.g = 1.;
-    // lane_center_1.color.b = 0.;
-    // lane_center_1.color.a = 1.;
-
-    // lane_center_1.pose.orientation.x = 0.0;
-    // lane_center_1.pose.orientation.y = 0.0;
-    // lane_center_1.pose.orientation.z = 0.0;
-    // lane_center_1.pose.orientation.w = 1.0;
-
-    // for(auto point : m_waypoint_vec)
-    // {
-    //     lane_center_1.points.push_back(point);
-    // }
-
-    // lanes.markers.push_back(lane_center_1);
-
-    // visualization_msgs::Marker lane_center_1_road;
-    // lane_center_1_road.header.frame_id = "map";
-    // lane_center_1_road.header.stamp = ros::Time::now();
-    // lane_center_1_road.id = 6;
-    // lane_center_1_road.action = visualization_msgs::Marker::ADD;
-    // lane_center_1_road.type = visualization_msgs::Marker::LINE_STRIP;
-    // lane_center_1_road.lifetime = ros::Duration();
-    // lane_center_1_road.scale.x = 3.5;
-
-    // lane_center_1_road.color.r = 1.;
-    // lane_center_1_road.color.g = 1.;
-    // lane_center_1_road.color.b = 1.;
-    // lane_center_1_road.color.a = 0.5;
-
-    // lane_center_1_road.pose.orientation.x = 0.0;
-    // lane_center_1_road.pose.orientation.y = 0.0;
-    // lane_center_1_road.pose.orientation.z = 0.0;
-    // lane_center_1_road.pose.orientation.w = 1.0;
-
-    // for(auto point : m_waypoint_vec)
-    // {
-    //     lane_center_1_road.points.push_back(point);
-    // }
-
-    // lanes.markers.push_back(lane_center_1_road);
-
-    // lane_marker_array_msg = lanes;
 
     // MISSION VISUALIZATION
     jsk_rviz_plugins::OverlayText temp_rviz_mission_msg;

@@ -50,6 +50,16 @@
 #define TUNNEL 6
 #define STATIC_OBSTACLE_3 7
 
+#define RED 0
+#define GREEN 2
+#define GREEN_ 4
+#define YELLOW 1
+
+#define NO_BLOCK 0
+#define _1_BLOCK 1
+#define _2_BLOCK 2
+#define _1_2_BLOCK 3
+
 // Namespace
 using namespace lanelet;
 
@@ -67,9 +77,9 @@ public:
     void GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg);
     void TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg);
     void VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg);
-    void AheadVehicleCallback(const kucudas_msgs::VehicleInformationConstPtr &in_ahead_vehicle_info_msg);
+    void AheadVehicleCallback(const std_msgs::Int8ConstPtr &in_ahead_vehicle_info_msg);
     void MissionCallback(const std_msgs::Int8ConstPtr &in_mission_msg);
-    void TrafficLightCallback(const std_msgs::Bool &traffic_light_msg);
+    void TrafficLightCallback(const std_msgs::Int8ConstPtr &traffic_light_msg);
     void ProcessINI();
     void Run();
     void Publish();
@@ -91,16 +101,17 @@ private:
     // Subscriber
     ros::Subscriber s_global_route1_sub;
     ros::Subscriber s_global_route2_sub;
-    ros::Subscriber s_global_route3_sub;
+    ros::Subscriber s_loop_route_sub;
     ros::Subscriber s_odom_sub;
     ros::Subscriber s_gnss_sub;
     ros::Subscriber s_tf_sub;
     ros::Subscriber s_vs_sub;
-    ros::Subscriber s_ahead_vehicle_sub;
+    ros::Subscriber s_object_block_sub;
     ros::Subscriber s_mission_sub;
     ros::Subscriber s_traffic_light_sub;    // subscribe traffic light signal
 
     // Messages
+    int m_block = NO_BLOCK;
 
     // Environments
     IniParser v_ini_parser_;
@@ -110,9 +121,9 @@ private:
 
     // Variables
 
-    std::vector<geometry_msgs::Point> m_lane_left_vec;
-    std::vector<geometry_msgs::Point> m_lane_center_vec;
-    std::vector<geometry_msgs::Point> m_lane_right_vec;
+    std::vector<geometry_msgs::Point> m_lane_1_vec;
+    std::vector<geometry_msgs::Point> m_lane_loop_vec;
+    std::vector<geometry_msgs::Point> m_lane_2_vec;
 
     std::vector<geometry_msgs::Point> m_waypoint_vec;
 
@@ -145,13 +156,13 @@ private:
 
     bool get_global_route1 = false;
     bool get_global_route2 = false;
-    bool get_global_route3 = false;
+    bool get_loop_route = false;
 
     int m_print_count = 0;
 
     int m_mission = NORMAL_DRIVE;
 
-    bool traffic_stop = false;      // subscribing traffic light signal     
+    int traffic_signal = GREEN;      // subscribing traffic light signal     
 };
 
 #endif // __LOCAL_PLANNING_HPP__
