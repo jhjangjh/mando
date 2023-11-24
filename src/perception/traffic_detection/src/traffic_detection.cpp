@@ -415,6 +415,15 @@ void Detection::TrafficLightCallback(const carla_msgs::CarlaTrafficLightStatusLi
         }
 
     }
+        if(m_traffic_light==RED){
+            ROS_WARN_STREAM("RED");
+        }
+        else if(m_traffic_light==GREEN){
+            ROS_WARN_STREAM("Green");
+        }
+        else if(m_traffic_light==GREEN){
+            ROS_WARN_STREAM("Green");
+        }
 }
 
 void Detection::GlobalRoute_1_Callback(const geometry_msgs::PoseArrayConstPtr &in_global_route_1){
