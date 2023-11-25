@@ -369,21 +369,27 @@ double VehicleControl::GetSteeringAngle(kucudas_msgs::TrajectoryPoint target_poi
 {
     double steering_angle;
     double lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
-    if(m_mission == TUNNEL)
+    if(longitudinal_control_params_.use_tunnel_lidar)
     {
-        m_target_lateral_error = target_point.y;
-        ROS_INFO_STREAM("target_point.x" << target_point.x);
-        ROS_INFO_STREAM("target_point.y" << target_point.y);
-        ROS_INFO_STREAM("m_target_lateral_error : "<<m_target_lateral_error);
-        lookahead_point_distance = sqrt(pow(target_point.x,2)+pow(target_point.y,2));
+        if(m_mission == TUNNEL)
+        {
+            m_target_lateral_error = target_point.y;
+            ROS_INFO_STREAM("target_point.x" << target_point.x);
+            ROS_INFO_STREAM("target_point.y" << target_point.y);
+            ROS_INFO_STREAM("m_target_lateral_error : "<<m_target_lateral_error);
+            lookahead_point_distance = sqrt(pow(target_point.x,2)+pow(target_point.y,2));
+        }
+        else
+        {
+            m_target_lateral_error = GetCrossTrackError(target_point);
+            lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
+        }
     }
     else
     {
         m_target_lateral_error = GetCrossTrackError(target_point);
-        lookahead_point_distance = sqrt(pow(target_point.x-m_ego_x,2)+pow(target_point.y-m_ego_y,2));
     }
 
-    // m_target_lateral_error = GetCrossTrackError(target_point);
     // ROS_INFO_STREAM("m_target_lateral_error : "<<m_target_lateral_error);
     
     double wheel_base = 1.2501934625522466 + 1.256300229233517;

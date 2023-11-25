@@ -1,4 +1,3 @@
-
 // STD header
 #include <string>
 #include <stdlib.h>
@@ -75,6 +74,7 @@ public:
     void GlobalRoute_2_Callback(const geometry_msgs::PoseArrayConstPtr &in_global_route_2);
     void GlobalRoute_3_Callback(const geometry_msgs::PoseArrayConstPtr &in_global_route_3);
     void MissionState_Callback(const std_msgs::Int8ConstPtr &in_mission_state);
+    void IDCallback(const carla_msgs::CarlaTrafficLightInfoListConstPtr &in_id_msg);
 
     bool is_Route_1_block(double threshold);
     bool is_Route_2_block(double threshold);
@@ -95,6 +95,7 @@ private:
     ros::Subscriber s_global_route_2;
     ros::Subscriber s_global_route_3;
     ros::Subscriber s_mission_state;
+    ros::Subscriber s_traffic_id;
 
     // Variales
     nav_msgs::Odometry m_odom;
@@ -104,6 +105,35 @@ private:
     geometry_msgs::PoseArray m_global_route_3;
     int m_mission_state = NORMAL_DRIVE;
     int m_traffic_light = GREEN;
+
+    //Traffic light xyz
+    geometry_msgs::Vector3 traffic_1_;
+    geometry_msgs::Vector3 traffic_2_;
+    geometry_msgs::Vector3 traffic_3_;
+    geometry_msgs::Vector3 traffic_4_;
+    geometry_msgs::Vector3 traffic_5_;
+    geometry_msgs::Vector3 traffic_6_;
+    geometry_msgs::Vector3 traffic_7_;
+    geometry_msgs::Vector3 traffic_8_;
+
+    int traffic_1_id_;
+    int traffic_2_id_;
+    int traffic_3_id_;
+    int traffic_4_id_;
+    int traffic_5_id_;
+    int traffic_6_id_;
+    int traffic_7_id_;
+    int traffic_8_id_;
+
+    bool traffic_passed_1 = false;
+    bool traffic_passed_2 = false;
+    bool traffic_passed_3 = false;
+    bool traffic_passed_4 = false;
+    bool traffic_passed_5 = false;
+    bool traffic_passed_6 = false;
+    bool traffic_passed_7 = false;
+    bool traffic_passed_8 = false;
+
         
     // tf Variables
     tf::TransformListener listener;
@@ -119,6 +149,7 @@ Detection::Detection(ros::NodeHandle &nh_){
     s_global_route_2 = nh_.subscribe("/adas/planning/global_route2", 1, &Detection::GlobalRoute_2_Callback, this);
     s_global_route_3 = nh_.subscribe("/adas/planning/global_route3", 1, &Detection::GlobalRoute_3_Callback, this);
     s_mission_state = nh_.subscribe("/adas/planning/mission", 1, &Detection::MissionState_Callback, this);
+    s_traffic_id = nh_.subscribe("/carla/traffic_lights/info", 10, &Detection::IDCallback, this);
 
     p_object_block_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/block", 10);
     p_traffic_info_pub = nh_.advertise<std_msgs::Int8>("/adas/planning/traffic", 10);
@@ -132,6 +163,31 @@ void Detection::Init(){
     m_global_route_1.poses.clear();
     m_global_route_2.poses.clear();
     m_global_route_3.poses.clear();
+
+    traffic_1_.x = -67.82;
+    traffic_1_.y = -121.06;
+
+    traffic_2_.x = -68.34;
+    traffic_2_.y = 12.37;
+
+    traffic_3_.x = 20.46;
+    traffic_3_.y = 187.89;
+
+    traffic_4_.x = 94.99;
+    traffic_4_.y = 184.36;
+
+    traffic_5_.x = 73.22;
+    traffic_5_.y = 123.29;
+
+    traffic_6_.x = 163.13;
+    traffic_6_.y = 123.77;
+
+    traffic_7_.x = 163.67;
+    traffic_7_.y = 216.69;
+
+    traffic_8_.x = 224.50;
+    traffic_8_.y = -80.86;
+
 }
 
 void Detection::TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg){
@@ -147,51 +203,227 @@ void Detection::AheadVehicleCallback(const visualization_msgs::MarkerArrayConstP
     for(auto point : in_ahead_vehicle_info_msg->markers){
         
         distance = sqrt(pow((point.pose.position.x - m_odom.pose.pose.position.x),2) + pow((point.pose.position.y - m_odom.pose.pose.position.y),2));
-        if(distance<10 && distance>1.0){
-            ROS_WARN_STREAM("distance : "<<distance);
+        if(distance<15 && distance>1.0){
+            // ROS_WARN_STREAM("distance : "<<distance);
             m_vehicle_posearray.poses.push_back(point.pose);
         }
     }
 }
 
+void Detection::IDCallback(const carla_msgs::CarlaTrafficLightInfoListConstPtr &in_id_msg){
+    double min_dist = DBL_MAX;
+    
+    //find traffic 1 id
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_1_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_1_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_1_id_ = light.id;
+        }
+    }
+    min_dist = DBL_MAX;
+
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_2_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_2_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_2_id_ = light.id;
+        }
+    }
+    min_dist = DBL_MAX;
+
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_3_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_3_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_3_id_ = light.id;
+        }
+    }
+    min_dist = DBL_MAX;
+
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_4_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_4_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_4_id_ = light.id;
+        }
+    }
+    min_dist = DBL_MAX;
+
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_5_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_5_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_5_id_ = light.id;
+        }
+    }
+    min_dist = DBL_MAX;
+
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_6_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_6_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_6_id_ = light.id;
+        }
+    }
+    min_dist = DBL_MAX;
+
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_7_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_7_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_7_id_ = light.id;
+        }
+    }
+    min_dist = DBL_MAX;
+
+    for(auto light : in_id_msg->traffic_lights){
+        // To Do
+        double distance = std::sqrt(std::pow((light.transform.position.x - traffic_8_.x), 2) +
+                                    std::pow((light.transform.position.y - traffic_8_.y), 2));
+
+        if (distance < min_dist) {
+            min_dist = distance;
+            traffic_8_id_ = light.id;
+        }
+    }
+
+    ROS_WARN_STREAM("1 id : "<<traffic_1_id_);
+    ROS_WARN_STREAM("2 id : "<<traffic_2_id_);
+    ROS_WARN_STREAM("3 id : "<<traffic_3_id_);
+    ROS_WARN_STREAM("4 id : "<<traffic_4_id_);
+    ROS_WARN_STREAM("5 id : "<<traffic_5_id_);
+    ROS_WARN_STREAM("6 id : "<<traffic_6_id_);
+    ROS_WARN_STREAM("7 id : "<<traffic_7_id_);
+    ROS_WARN_STREAM("8 id : "<<traffic_8_id_);
+}
+
+
 void Detection::TrafficLightCallback(const carla_msgs::CarlaTrafficLightStatusListConstPtr &traffic_light_list_msg){
-    int container_local_carla_diff = 37;
+    int container_local_carla_diff = 0;
     m_traffic_light=GREEN;
 
     for(auto light : traffic_light_list_msg->traffic_lights){
-
-        if((light.id - container_local_carla_diff)==31 && m_mission_state==TRAFFIC_LIGHT_1){
+        if((light.id==traffic_1_id_) && (traffic_passed_1==false) &&(m_mission_state!=TRAFFIC_LIGHT_1)){
+            ROS_WARN_STREAM("0~1");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==29 && m_mission_state==TRAFFIC_LIGHT_2){
+        if((light.id==traffic_1_id_) && (m_mission_state==TRAFFIC_LIGHT_1)){
+            ROS_WARN_STREAM("1");
+            m_traffic_light=light.state;
+            traffic_passed_1=true;
+        }
+
+        if((light.id==traffic_2_id_) && (traffic_passed_1==true) && (traffic_passed_2==false) &&(m_mission_state!=TRAFFIC_LIGHT_1)){
+            ROS_WARN_STREAM("1~2");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==27 && m_mission_state==TRAFFIC_LIGHT_3){
+        if((light.id==traffic_2_id_) && (m_mission_state==TRAFFIC_LIGHT_2)){
+            ROS_WARN_STREAM("2");
+            m_traffic_light=light.state;
+            traffic_passed_2=true;
+        }
+
+        if((light.id==traffic_3_id_) && (traffic_passed_2==true) && (traffic_passed_3==false) &&(m_mission_state!=TRAFFIC_LIGHT_2)){
+            ROS_WARN_STREAM("2~3");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==51 && m_mission_state==TRAFFIC_LIGHT_4){
+
+        if((light.id==traffic_3_id_) && (m_mission_state==TRAFFIC_LIGHT_3)){
+            ROS_WARN_STREAM("3");
+            m_traffic_light=light.state;
+            traffic_passed_3=true;
+        }
+
+        if((light.id==traffic_4_id_) && (traffic_passed_3==true) && (traffic_passed_4==false) &&(m_mission_state!=TRAFFIC_LIGHT_3)){
+            ROS_WARN_STREAM("3~4");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==47 && m_mission_state==TRAFFIC_LIGHT_5){
+        if(light.id==traffic_4_id_ && m_mission_state==TRAFFIC_LIGHT_4){
+            ROS_WARN_STREAM("4");
+            m_traffic_light=light.state;
+            traffic_passed_4=true;
+        }
+
+        if((light.id==traffic_5_id_) && (traffic_passed_4==true) && (traffic_passed_5==false) &&(m_mission_state!=TRAFFIC_LIGHT_4)){
+            ROS_WARN_STREAM("4~5");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==41 && m_mission_state==TRAFFIC_LIGHT_6){
+        if(light.id==traffic_5_id_ && m_mission_state==TRAFFIC_LIGHT_5){
+            ROS_WARN_STREAM("5");
+            m_traffic_light=light.state;
+            traffic_passed_5=true;
+        }
+
+        if((light.id==traffic_6_id_) && (traffic_passed_5==true) && (traffic_passed_6==false) &&(m_mission_state!=TRAFFIC_LIGHT_6)){
+            ROS_WARN_STREAM("5~6");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==50 && m_mission_state==TRAFFIC_LIGHT_7){
+        if(light.id==traffic_6_id_ && m_mission_state==TRAFFIC_LIGHT_6){
+            ROS_WARN_STREAM("6");
+            m_traffic_light=light.state;
+            traffic_passed_6=true;
+        }
+
+        if((light.id==traffic_7_id_) && (traffic_passed_6==true) && (traffic_passed_7==false) &&(m_mission_state!=TRAFFIC_LIGHT_7)){
+            ROS_WARN_STREAM("6~7");
             m_traffic_light=light.state;
         }
 
-        if((light.id - container_local_carla_diff)==26 && m_mission_state==TRAFFIC_LIGHT_8){
+        if(light.id==traffic_7_id_ && m_mission_state==TRAFFIC_LIGHT_7){
+            ROS_WARN_STREAM("7");
+            m_traffic_light=light.state;
+            traffic_passed_7=true;
+        }
+
+        if((light.id==traffic_8_id_) && (traffic_passed_7==true) && (traffic_passed_8==false) &&(m_mission_state!=TRAFFIC_LIGHT_8)){
+            ROS_WARN_STREAM("7~8");
             m_traffic_light=light.state;
         }
+
+        if(light.id==traffic_8_id_ && m_mission_state==TRAFFIC_LIGHT_8){
+            ROS_WARN_STREAM("8");
+            m_traffic_light=light.state;
+            traffic_passed_8=true;
+        }
+
     }
+        if(m_traffic_light==RED){
+            ROS_WARN_STREAM("RED");
+        }
+        else if(m_traffic_light==GREEN){
+            ROS_WARN_STREAM("Green");
+        }
+        else if(m_traffic_light==GREEN){
+            ROS_WARN_STREAM("Green");
+        }
 }
 
 void Detection::GlobalRoute_1_Callback(const geometry_msgs::PoseArrayConstPtr &in_global_route_1){
