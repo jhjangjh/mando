@@ -139,6 +139,7 @@ void VehicleControl::Run(){
         {
             m_closest_point = FindClosestPoint();
             double lookahead_distance = SetLookAheadDistance();
+            ROS_WARN_STREAM("lookahead_distance : "<<lookahead_distance);
             m_target_point = FindTargetPoint(m_closest_point, lookahead_distance);
 
             double pid_error;

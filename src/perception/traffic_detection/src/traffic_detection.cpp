@@ -213,7 +213,7 @@
         
 //         distance = sqrt(pow((point.pose.position.x - m_odom.pose.pose.position.x),2) + pow((point.pose.position.y - m_odom.pose.pose.position.y),2));
 //         if(distance<15 && distance>1.0){
-//             // ROS_WARN_STREAM("distance : "<<distance);
+//             // ROS_INFO_STREAM("distance : "<<distance);
 //             m_vehicle_posearray.poses.push_back(point.pose);
 //         }
 //     }
@@ -318,14 +318,14 @@
 //         }
 //     }
 
-//     ROS_WARN_STREAM("1 id : "<<traffic_1_id_);
-//     ROS_WARN_STREAM("2 id : "<<traffic_2_id_);
-//     ROS_WARN_STREAM("3 id : "<<traffic_3_id_);
-//     ROS_WARN_STREAM("4 id : "<<traffic_4_id_);
-//     ROS_WARN_STREAM("5 id : "<<traffic_5_id_);
-//     ROS_WARN_STREAM("6 id : "<<traffic_6_id_);
-//     ROS_WARN_STREAM("7 id : "<<traffic_7_id_);
-//     ROS_WARN_STREAM("8 id : "<<traffic_8_id_);
+//     ROS_INFO_STREAM("1 id : "<<traffic_1_id_);
+//     ROS_INFO_STREAM("2 id : "<<traffic_2_id_);
+//     ROS_INFO_STREAM("3 id : "<<traffic_3_id_);
+//     ROS_INFO_STREAM("4 id : "<<traffic_4_id_);
+//     ROS_INFO_STREAM("5 id : "<<traffic_5_id_);
+//     ROS_INFO_STREAM("6 id : "<<traffic_6_id_);
+//     ROS_INFO_STREAM("7 id : "<<traffic_7_id_);
+//     ROS_INFO_STREAM("8 id : "<<traffic_8_id_);
 // }
 
 
@@ -335,103 +335,103 @@
 
 //     for(auto light : traffic_light_list_msg->traffic_lights){
 //         if((light.id==traffic_1_id_) && (traffic_passed_1==false) &&(m_mission_state!=TRAFFIC_LIGHT_1)){
-//             ROS_WARN_STREAM("0~1");
+//             ROS_INFO_STREAM("0~1");
 //             m_traffic_light=light.state;
 //         }
 
 //         if((light.id==traffic_1_id_) && (m_mission_state==TRAFFIC_LIGHT_1)){
-//             ROS_WARN_STREAM("1");
+//             ROS_INFO_STREAM("1");
 //             m_traffic_light=light.state;
 //             traffic_passed_1=true;
 //         }
 
 //         if((light.id==traffic_2_id_) && (traffic_passed_1==true) && (traffic_passed_2==false) &&(m_mission_state!=TRAFFIC_LIGHT_1)){
-//             ROS_WARN_STREAM("1~2");
+//             ROS_INFO_STREAM("1~2");
 //             m_traffic_light=light.state;
 //         }
 
 //         if((light.id==traffic_2_id_) && (m_mission_state==TRAFFIC_LIGHT_2)){
-//             ROS_WARN_STREAM("2");
+//             ROS_INFO_STREAM("2");
 //             m_traffic_light=light.state;
 //             traffic_passed_2=true;
 //         }
 
 //         if((light.id==traffic_3_id_) && (traffic_passed_2==true) && (traffic_passed_3==false) &&(m_mission_state!=TRAFFIC_LIGHT_2)){
-//             ROS_WARN_STREAM("2~3");
+//             ROS_INFO_STREAM("2~3");
 //             m_traffic_light=light.state;
 //         }
 
 
 //         if((light.id==traffic_3_id_) && (m_mission_state==TRAFFIC_LIGHT_3)){
-//             ROS_WARN_STREAM("3");
+//             ROS_INFO_STREAM("3");
 //             m_traffic_light=light.state;
 //             traffic_passed_3=true;
 //         }
 
 //         if((light.id==traffic_4_id_) && (traffic_passed_3==true) && (traffic_passed_4==false) &&(m_mission_state!=TRAFFIC_LIGHT_3)){
-//             ROS_WARN_STREAM("3~4");
+//             ROS_INFO_STREAM("3~4");
 //             m_traffic_light=light.state;
 //         }
 
 //         if(light.id==traffic_4_id_ && m_mission_state==TRAFFIC_LIGHT_4){
-//             ROS_WARN_STREAM("4");
+//             ROS_INFO_STREAM("4");
 //             m_traffic_light=light.state;
 //             traffic_passed_4=true;
 //         }
 
 //         if((light.id==traffic_5_id_) && (traffic_passed_4==true) && (traffic_passed_5==false) &&(m_mission_state!=TRAFFIC_LIGHT_4)){
-//             ROS_WARN_STREAM("4~5");
+//             ROS_INFO_STREAM("4~5");
 //             m_traffic_light=light.state;
 //         }
 
 //         if(light.id==traffic_5_id_ && m_mission_state==TRAFFIC_LIGHT_5){
-//             ROS_WARN_STREAM("5");
+//             ROS_INFO_STREAM("5");
 //             m_traffic_light=light.state;
 //             traffic_passed_5=true;
 //         }
 
 //         if((light.id==traffic_6_id_) && (traffic_passed_5==true) && (traffic_passed_6==false) &&(m_mission_state!=TRAFFIC_LIGHT_6)){
-//             ROS_WARN_STREAM("5~6");
+//             ROS_INFO_STREAM("5~6");
 //             m_traffic_light=light.state;
 //         }
 
 //         if(light.id==traffic_6_id_ && m_mission_state==TRAFFIC_LIGHT_6){
-//             ROS_WARN_STREAM("6");
+//             ROS_INFO_STREAM("6");
 //             m_traffic_light=light.state;
 //             traffic_passed_6=true;
 //         }
 
 //         if((light.id==traffic_7_id_) && (traffic_passed_6==true) && (traffic_passed_7==false) &&(m_mission_state!=TRAFFIC_LIGHT_7)){
-//             ROS_WARN_STREAM("6~7");
+//             ROS_INFO_STREAM("6~7");
 //             m_traffic_light=light.state;
 //         }
 
 //         if(light.id==traffic_7_id_ && m_mission_state==TRAFFIC_LIGHT_7){
-//             ROS_WARN_STREAM("7");
+//             ROS_INFO_STREAM("7");
 //             m_traffic_light=light.state;
 //             traffic_passed_7=true;
 //         }
 
 //         if((light.id==traffic_8_id_) && (traffic_passed_7==true) && (traffic_passed_8==false) &&(m_mission_state!=TRAFFIC_LIGHT_8)){
-//             ROS_WARN_STREAM("7~8");
+//             ROS_INFO_STREAM("7~8");
 //             m_traffic_light=light.state;
 //         }
 
 //         if(light.id==traffic_8_id_ && m_mission_state==TRAFFIC_LIGHT_8){
-//             ROS_WARN_STREAM("8");
+//             ROS_INFO_STREAM("8");
 //             m_traffic_light=light.state;
 //             traffic_passed_8=true;
 //         }
 
 //     }
 //         if(m_traffic_light==RED){
-//             ROS_WARN_STREAM("RED");
+//             ROS_INFO_STREAM("RED");
 //         }
 //         else if(m_traffic_light==GREEN){
-//             ROS_WARN_STREAM("Green");
+//             ROS_INFO_STREAM("Green");
 //         }
 //         else if(m_traffic_light==GREEN){
-//             ROS_WARN_STREAM("Green");
+//             ROS_INFO_STREAM("Green");
 //         }
 // }
 
@@ -830,7 +830,7 @@ void Detection::AheadVehicleCallback(const visualization_msgs::MarkerArrayConstP
         
         distance = sqrt(pow((point.pose.position.x - m_odom.pose.pose.position.x),2) + pow((point.pose.position.y - m_odom.pose.pose.position.y),2));
         if(distance<15 && distance>1.0){
-            // ROS_WARN_STREAM("distance : "<<distance);
+            // ROS_INFO_STREAM("distance : "<<distance);
             m_vehicle_posearray.poses.push_back(point.pose);
         }
     }
@@ -935,14 +935,14 @@ void Detection::IDCallback(const carla_msgs::CarlaTrafficLightInfoListConstPtr &
         }
     }
 
-    ROS_WARN_STREAM("1 id : "<<traffic_1_id_);
-    ROS_WARN_STREAM("2 id : "<<traffic_2_id_);
-    ROS_WARN_STREAM("3 id : "<<traffic_3_id_);
-    ROS_WARN_STREAM("4 id : "<<traffic_4_id_);
-    ROS_WARN_STREAM("5 id : "<<traffic_5_id_);
-    ROS_WARN_STREAM("6 id : "<<traffic_6_id_);
-    ROS_WARN_STREAM("7 id : "<<traffic_7_id_);
-    ROS_WARN_STREAM("8 id : "<<traffic_8_id_);
+    ROS_INFO_STREAM("1 id : "<<traffic_1_id_);
+    ROS_INFO_STREAM("2 id : "<<traffic_2_id_);
+    ROS_INFO_STREAM("3 id : "<<traffic_3_id_);
+    ROS_INFO_STREAM("4 id : "<<traffic_4_id_);
+    ROS_INFO_STREAM("5 id : "<<traffic_5_id_);
+    ROS_INFO_STREAM("6 id : "<<traffic_6_id_);
+    ROS_INFO_STREAM("7 id : "<<traffic_7_id_);
+    ROS_INFO_STREAM("8 id : "<<traffic_8_id_);
 }
 
 
@@ -954,99 +954,99 @@ void Detection::get_signal(){
 
     for(auto light : traffic_list.traffic_lights){
         if((light.id==traffic_1_id_) && (m_mission_state==NORMAL_DRIVE_01)){
-            ROS_WARN_STREAM("0~1");
+            ROS_INFO_STREAM("0~1");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_1_id_) && (m_mission_state==TRAFFIC_LIGHT_1)){
-            ROS_WARN_STREAM("1");
+            ROS_INFO_STREAM("1");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_2_id_) && (m_mission_state==NORMAL_DRIVE_12)){
-            ROS_WARN_STREAM("1~2");
+            ROS_INFO_STREAM("1~2");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_2_id_) && (m_mission_state==TRAFFIC_LIGHT_2)){
-            ROS_WARN_STREAM("2");
+            ROS_INFO_STREAM("2");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_3_id_) && (m_mission_state==NORMAL_DRIVE_23)){
-            ROS_WARN_STREAM("2~3");
+            ROS_INFO_STREAM("2~3");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_3_id_) && (m_mission_state==TRAFFIC_LIGHT_3)){
-            ROS_WARN_STREAM("3");
+            ROS_INFO_STREAM("3");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_4_id_) &&(m_mission_state==NORMAL_DRIVE_34)){
-            ROS_WARN_STREAM("3~4");
+            ROS_INFO_STREAM("3~4");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_4_id_) && (m_mission_state==TRAFFIC_LIGHT_4)){
-            ROS_WARN_STREAM("4");
+            ROS_INFO_STREAM("4");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_5_id_) && (m_mission_state==NORMAL_DRIVE_45)){
-            ROS_WARN_STREAM("4~5");
+            ROS_INFO_STREAM("4~5");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_5_id_) && (m_mission_state==TRAFFIC_LIGHT_5)){
-            ROS_WARN_STREAM("5");
+            ROS_INFO_STREAM("5");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_6_id_) && (m_mission_state==NORMAL_DRIVE_56)){
-            ROS_WARN_STREAM("5~6");
+            ROS_INFO_STREAM("5~6");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_6_id_) && (m_mission_state==TRAFFIC_LIGHT_6)){
-            ROS_WARN_STREAM("6");
+            ROS_INFO_STREAM("6");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_7_id_) && (m_mission_state==NORMAL_DRIVE_67)){
-            ROS_WARN_STREAM("6~7");
+            ROS_INFO_STREAM("6~7");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_7_id_) && (m_mission_state==TRAFFIC_LIGHT_7)){
-            ROS_WARN_STREAM("7");
+            ROS_INFO_STREAM("7");
             m_traffic_light=light.state;
         }
 
         if((light.id==traffic_8_id_) &&(m_mission_state==NORMAL_DRIVE_78)){
-            ROS_WARN_STREAM("7~8");
+            ROS_INFO_STREAM("7~8");
             m_traffic_light=light.state;
         }
 
         if(light.id==traffic_8_id_ && m_mission_state==TRAFFIC_LIGHT_8){
-            ROS_WARN_STREAM("8");
+            ROS_INFO_STREAM("8");
             m_traffic_light=light.state;
         }
 
 
     }
-    
+
     if(m_traffic_light==RED){
-        ROS_WARN_STREAM("RED");
+        ROS_INFO_STREAM("RED");
     }
     else if(m_traffic_light==GREEN){
-        ROS_WARN_STREAM("Green");
+        ROS_INFO_STREAM("Green");
     }
     else if(m_traffic_light==GREEN_){
-        ROS_WARN_STREAM("Green");
+        ROS_INFO_STREAM("Green");
     }
     else if(m_traffic_light==YELLOW){
-        ROS_WARN_STREAM("Yellow");
+        ROS_INFO_STREAM("Yellow");
     }
 
 }
