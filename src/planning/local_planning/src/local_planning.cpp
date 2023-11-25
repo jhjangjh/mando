@@ -9,7 +9,6 @@ LocalPlanning::LocalPlanning(ros::NodeHandle &nh_) : lanelet_utm_projector(Origi
 
     p_trajectory_pub = nh_.advertise<kucudas_msgs::Trajectory>("/trajectory", 100);
     p_rviz_trajectory_pub = nh_.advertise<visualization_msgs::MarkerArray>("/hmi/trajectory", 10);
-    p_loop_count_pub = nh_.advertise<std_msgs::Int8>("/local_planning/loop_count", 10);
 
     s_global_route1_sub = nh_.subscribe("/adas/planning/global_route1", 1000, &LocalPlanning::Route1Callback, this);
     s_global_route2_sub = nh_.subscribe("/adas/planning/global_route2", 1000, &LocalPlanning::Route2Callback, this);
@@ -134,7 +133,6 @@ void LocalPlanning::Run(){
 void LocalPlanning::Publish(){
     p_trajectory_pub.publish(m_trajectory);
     p_rviz_trajectory_pub.publish(m_trajectory_marker_array);
-    p_loop_count_pub.publish(loop_count_msg);
 }
 
 void LocalPlanning::ProcessINI(){
@@ -156,34 +154,11 @@ void LocalPlanning::ProcessINI(){
 void LocalPlanning::SelectWaypoint(){
 
     // TBD
-    if(m_mission == LOOP)
-    {
-        ROS_INFO_STREAM("loop_half : "<< loop_half);
-        ROS_INFO_STREAM("loop_count : "<< loop_count);
-
-        m_waypoint_vec = m_lane_loop_vec;
-        if(m_closest_id > 700 && m_closest_id < 740)
-        {
-            loop_half = 1;
-        }
-        if(loop_half == 1)
-        {
-            loop_count = 1;
-            loop_count_msg.data = loop_count;
-        }
+    if(m_block==_1_BLOCK){
+        m_waypoint_vec = m_lane_2_vec;    
     }
-    else if(m_mission == END_LOOP)
-    {
+    else if(m_block==_2_BLOCK){
         m_waypoint_vec = m_lane_1_vec;
-    }
-    else
-    {
-        if(m_block==_1_BLOCK){
-            m_waypoint_vec = m_lane_2_vec;    
-        }
-        else if(m_block==_2_BLOCK){
-            m_waypoint_vec = m_lane_1_vec;
-        }
     }
 
 }
@@ -381,8 +356,7 @@ double LocalPlanning::SpeedProfiling(double curvature)
         }
     }
 
-    if((((m_mission == TRAFFIC_LIGHT_1) || (m_mission == TRAFFIC_LIGHT_2) || (m_mission == TRAFFIC_LIGHT_3) || (m_mission == TRAFFIC_LIGHT_4) ||
-    (m_mission == TRAFFIC_LIGHT_5) || (m_mission == TRAFFIC_LIGHT_6) || (m_mission == TRAFFIC_LIGHT_7) || (m_mission == TRAFFIC_LIGHT_8) ) && (traffic_signal==RED||traffic_signal==YELLOW)) || (m_block == _1_2_BLOCK))
+    if((m_mission == TRAFFIC_LIGHT && (traffic_signal==RED||traffic_signal==YELLOW)) || (m_block == _1_2_BLOCK))
     {
         speed = 0.;
     }

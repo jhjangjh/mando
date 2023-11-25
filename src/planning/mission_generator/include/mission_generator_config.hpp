@@ -3,7 +3,7 @@
 #pragma once
 
 typedef struct {
-    bool go_loop;
+
 } MissionGeneratorParameters;
 
 #endif  // __MISSION_GENERATOR_CONFIG_HPP__

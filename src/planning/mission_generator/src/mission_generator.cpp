@@ -18,7 +18,6 @@ MissionGenerator::MissionGenerator(ros::NodeHandle &nh_) : lanelet_utm_projector
     // s_gnss_sub = nh_.subscribe("/carla/ego_vehicle/gnss", 1, &MissionGenerator::GnssCallback, this);
     s_tf_sub = nh_.subscribe("/tf",10,&MissionGenerator::TfCallback,this);
     s_vs_sub = nh_.subscribe("/carla/ego_vehicle/vehicle_status",10,&MissionGenerator::VsCallback,this);
-    s_loop_count_sub = nh_.subscribe("/local_planning/loop_count",10,&MissionGenerator::LoopCountCallback,this);
     Init();
 }
 
@@ -55,10 +54,6 @@ void MissionGenerator::VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPt
     vs_velocity = in_vs_msg->velocity * 3.6;        // kph
 }
 
-void MissionGenerator::LoopCountCallback(const std_msgs::Int8ConstPtr &in_loop_count_msg){
-    m_loop_count = in_loop_count_msg->data;
-}
-
 void MissionGenerator::Init(){
     ProcessINI();
     ReadOSMFile(); 
@@ -91,8 +86,6 @@ void MissionGenerator::ProcessINI(){
     if (v_ini_parser_.IsFileUpdated()){
         // v_ini_parser_.ParseConfig("mission_generator", "xxx",
         //                             mission_generator_params_.xxx);
-        v_ini_parser_.ParseConfig("mission_generator", "go_loop",
-                                    mission_generator_params_.go_loop);
         ROS_WARN("[Mission Generator] Ini file is updated!\n");
     }
 }
@@ -224,233 +217,101 @@ void MissionGenerator::MakeGlobalRoute()
 }
 
 void MissionGenerator::GenerateMission(){
-    if(mission_generator_params_.go_loop)
+    if(m_closest_id<894)
     {
-        if(m_closest_id<894)
-        {
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<923)
-        { 
-            m_mission = TRAFFIC_LIGHT_1;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<1155)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<1190)
-        { 
-            m_mission = TRAFFIC_LIGHT_2;
-            mission_msg.data = m_mission;
-        }          
-        else if(m_closest_id<1715)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }          
-        else if(m_closest_id<1742)
-        { 
-            m_mission = TRAFFIC_LIGHT_3;
-            mission_msg.data = m_mission;
-        }          
-        else if(m_closest_id<1900)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        } 
-        else if(m_closest_id<1935)
-        { 
-            m_mission = TRAFFIC_LIGHT_4;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2040)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2053)
-        { 
-            m_mission = TRAFFIC_LIGHT_5;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<2130)                         // TBD
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }        
-        else if(m_closest_id<2150)                         // TBD
-        { 
-            if(m_loop_count==0)
-            {
-                m_mission = LOOP;
-                mission_msg.data = m_mission;
-            }
-            else
-            {
-                m_mission = END_LOOP;
-                mission_msg.data = m_mission;
-            }
-        } 
-        else if(m_loop_count==1 && m_closest_id<2161)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_loop_count==1 && m_closest_id<2182)
-        { 
-            m_mission = TRAFFIC_LIGHT_6;
-            mission_msg.data = m_mission;
-        }      
-        else if(m_loop_count==1 && m_closest_id<2280)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_loop_count==1 && m_closest_id<2301)
-        { 
-            m_mission = TRAFFIC_LIGHT_7;
-            mission_msg.data = m_mission;
-        }
-        else if(m_loop_count==1 && m_closest_id<2355)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_loop_count==1 && m_closest_id<2789)
-        { 
-            m_mission = TUNNEL;
-            mission_msg.data = m_mission;
-        }      
-        else if(m_loop_count==1 && m_closest_id<2928)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_loop_count==1 && m_closest_id<2957)
-        { 
-            m_mission = TRAFFIC_LIGHT_8;
-            mission_msg.data = m_mission;
-        } 
-        else if(m_loop_count==1 && m_closest_id<3300)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }
-        else
-        {
-            if(m_loop_count==0)
-            {
-                m_mission = LOOP;
-                mission_msg.data = m_mission;
-            }
-            else
-            {
-                m_mission = END_LOOP;
-                mission_msg.data = m_mission;
-            }            
-        }
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
     }
-    else
-    {
-        if(m_closest_id<894)
-        {
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<923)
-        { 
-            m_mission = TRAFFIC_LIGHT_1;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<1155)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<1190)
-        { 
-            m_mission = TRAFFIC_LIGHT_2;
-            mission_msg.data = m_mission;
-        }          
-        else if(m_closest_id<1715)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }          
-        else if(m_closest_id<1742)
-        { 
-            m_mission = TRAFFIC_LIGHT_3;
-            mission_msg.data = m_mission;
-        }          
-        else if(m_closest_id<1900)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        } 
-        else if(m_closest_id<1935)
-        { 
-            m_mission = TRAFFIC_LIGHT_4;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2040)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2053)
-        { 
-            m_mission = TRAFFIC_LIGHT_5;
-            mission_msg.data = m_mission;
-        } 
-        else if(m_closest_id<2161)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2182)
-        { 
-            m_mission = TRAFFIC_LIGHT_6;
-            mission_msg.data = m_mission;
-        }      
-        else if(m_closest_id<2280)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2301)
-        { 
-            m_mission = TRAFFIC_LIGHT_7;
-            mission_msg.data = m_mission;
-        }
-        else if(m_closest_id<2355)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2789)
-        { 
-            m_mission = TUNNEL;
-            mission_msg.data = m_mission;
-        }      
-        else if(m_closest_id<2928)
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }             
-        else if(m_closest_id<2957)
-        { 
-            m_mission = TRAFFIC_LIGHT_8;
-            mission_msg.data = m_mission;
-        } 
-        else
-        { 
-            m_mission = NORMAL_DRIVE;
-            mission_msg.data = m_mission;
-        }   
+    else if(m_closest_id<923)
+    { 
+        m_mission = TRAFFIC_LIGHT_1;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<1155)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<1190)
+    { 
+        m_mission = TRAFFIC_LIGHT_2;
+        mission_msg.data = m_mission;
     }          
+    else if(m_closest_id<1715)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<1742)
+    { 
+        m_mission = TRAFFIC_LIGHT_3;
+        mission_msg.data = m_mission;
+    }          
+    else if(m_closest_id<1900)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    } 
+    else if(m_closest_id<1935)
+    { 
+        m_mission = TRAFFIC_LIGHT_4;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2040)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2053)
+    { 
+        m_mission = TRAFFIC_LIGHT_5;
+        mission_msg.data = m_mission;
+    } 
+    else if(m_closest_id<2161)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2182)
+    { 
+        m_mission = TRAFFIC_LIGHT_6;
+        mission_msg.data = m_mission;
+    }      
+    else if(m_closest_id<2280)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2301)
+    { 
+        m_mission = TRAFFIC_LIGHT_7;
+        mission_msg.data = m_mission;
+    }
+    else if(m_closest_id<2355)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2789)
+    { 
+        m_mission = TUNNEL;
+        mission_msg.data = m_mission;
+    }      
+    else if(m_closest_id<2928)
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
+    else if(m_closest_id<2957)
+    { 
+        m_mission = TRAFFIC_LIGHT_8;
+        mission_msg.data = m_mission;
+    } 
+    else
+    { 
+        m_mission = NORMAL_DRIVE;
+        mission_msg.data = m_mission;
+    }             
 }
 
 void MissionGenerator::UpdateState()
@@ -661,9 +522,9 @@ void MissionGenerator::UpdateRviz()
     lane_loop.lifetime = ros::Duration();
     lane_loop.scale.x = 0.7;
 
-    lane_loop.color.r = 0.;
+    lane_loop.color.r = 1.;
     lane_loop.color.g = 1.;
-    lane_loop.color.b = 1.;
+    lane_loop.color.b = 0.;
     lane_loop.color.a = 1.;
 
     lane_loop.pose.orientation.x = 0.0;
@@ -682,54 +543,38 @@ void MissionGenerator::UpdateRviz()
 
     // MISSION VISUALIZATION
     jsk_rviz_plugins::OverlayText temp_rviz_mission_msg;
-    if(m_mission == TRAFFIC_LIGHT_1)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_1]";
-    }
-    else if(m_mission == TRAFFIC_LIGHT_2)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_2]";
-    }
-    else if(m_mission == TRAFFIC_LIGHT_3)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_3]";
-    }
-    else if(m_mission == TRAFFIC_LIGHT_4)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_4]";
-    }
-    else if(m_mission == TRAFFIC_LIGHT_5)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_5]";
-    }
-    else if(m_mission == TRAFFIC_LIGHT_6)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_6]";
-    }    
-    else if(m_mission == TRAFFIC_LIGHT_7)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_7]";
-    }
-    else if(m_mission == TRAFFIC_LIGHT_8)
-    {
-        temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT_8]";
-    }
-    else if(m_mission == LOOP)
-    {
-        temp_rviz_mission_msg.text = "[LOOP]";
-    }
-    else if(m_mission == END_LOOP)
-    {
-        temp_rviz_mission_msg.text = "[END_LOOP]";
-    }
-    else if(m_mission == TUNNEL)
-    {
-        temp_rviz_mission_msg.text = "[TUNNEL]";
-    }
-    else
-    {
-        temp_rviz_mission_msg.text = "[NORMAL_DRIVE]";
-    }
+    // if(m_mission == STATIC_OBSTACLE_1)
+    // {
+    //     temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_1]";
+    // }
+    // else if(m_mission == TRAFFIC_LIGHT)
+    // {
+    //     temp_rviz_mission_msg.text = "[TRAFFIC_LIGHT]";
+    // }
+    // else if(m_mission == ROTARY)
+    // {
+    //     temp_rviz_mission_msg.text = "[ROTARY]";
+    // }
+    // else if(m_mission == DYNAMIC_OBSTACLE)
+    // {
+    //     temp_rviz_mission_msg.text = "[DYNAMIC_OBSTACLE]";
+    // }
+    // else if(m_mission == PARKING)
+    // {
+    //     temp_rviz_mission_msg.text = "[PARKING]";
+    // }
+    // else if(m_mission == TUNNEL)
+    // {
+    //     temp_rviz_mission_msg.text = "[TUNNEL]";
+    // }    
+    // else if(m_mission == STATIC_OBSTACLE_3)
+    // {
+    //     temp_rviz_mission_msg.text = "[STATIC_OBSTACLE_3]";
+    // }
+    // else
+    // {
+    //     temp_rviz_mission_msg.text = "[NORMAL_DRIVE]";
+    // }
 
     rviz_mission_msg = temp_rviz_mission_msg;
 }
