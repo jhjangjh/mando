@@ -220,7 +220,7 @@ void MissionGenerator::GenerateMission(){
     
     if(m_closest_id<894)
     {
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_01;
         mission_msg.data = m_mission;
     }
     else if(m_closest_id<923)
@@ -230,7 +230,7 @@ void MissionGenerator::GenerateMission(){
     }
     else if(m_closest_id<1155)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_12;
         mission_msg.data = m_mission;
     }
     else if(m_closest_id<1190)
@@ -240,7 +240,7 @@ void MissionGenerator::GenerateMission(){
     }          
     else if(m_closest_id<1715)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_23;
         mission_msg.data = m_mission;
     }          
     else if(m_closest_id<1742)
@@ -250,7 +250,7 @@ void MissionGenerator::GenerateMission(){
     }          
     else if(m_closest_id<1900)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_34;
         mission_msg.data = m_mission;
     } 
     else if(m_closest_id<1935)
@@ -260,7 +260,7 @@ void MissionGenerator::GenerateMission(){
     }             
     else if(m_closest_id<2040)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_45;
         mission_msg.data = m_mission;
     }             
     else if(m_closest_id<2053)
@@ -270,7 +270,7 @@ void MissionGenerator::GenerateMission(){
     } 
     else if(m_closest_id<2161)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_56;
         mission_msg.data = m_mission;
     }             
     else if(m_closest_id<2182)
@@ -280,7 +280,7 @@ void MissionGenerator::GenerateMission(){
     }      
     else if(m_closest_id<2280)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_67;
         mission_msg.data = m_mission;
     }             
     else if(m_closest_id<2301)
@@ -290,7 +290,7 @@ void MissionGenerator::GenerateMission(){
     }
     else if(m_closest_id<2355)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_910;
         mission_msg.data = m_mission;
     }             
     else if(m_closest_id<2789)
@@ -300,7 +300,7 @@ void MissionGenerator::GenerateMission(){
     }      
     else if(m_closest_id<2928)
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_78;
         mission_msg.data = m_mission;
     }             
     else if(m_closest_id<2957)
@@ -310,7 +310,7 @@ void MissionGenerator::GenerateMission(){
     } 
     else
     { 
-        m_mission = NORMAL_DRIVE;
+        m_mission = NORMAL_DRIVE_910;
         mission_msg.data = m_mission;
     }   
               

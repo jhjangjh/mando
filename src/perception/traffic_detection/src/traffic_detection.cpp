@@ -45,17 +45,26 @@
 // #define _2_BLOCK 2
 // #define _1_2_BLOCK 3
 
-// #define NORMAL_DRIVE 0
+// // Mission Define
+// #define NORMAL_DRIVE_01 11
 // #define TRAFFIC_LIGHT_1 1
+// #define NORMAL_DRIVE_12 12
 // #define TRAFFIC_LIGHT_2 2
+// #define NORMAL_DRIVE_23 13
 // #define TRAFFIC_LIGHT_3 3
+// #define NORMAL_DRIVE_34 14
 // #define TRAFFIC_LIGHT_4 4
+// #define NORMAL_DRIVE_45 15
 // #define TRAFFIC_LIGHT_5 5
+// #define NORMAL_DRIVE_56 16
 // #define TRAFFIC_LIGHT_6 6
+// #define NORMAL_DRIVE_67 17
 // #define TRAFFIC_LIGHT_7 7
+// #define NORMAL_DRIVE_78 18
 // #define TRAFFIC_LIGHT_8 8
 // #define LOOP 9
-// #define TUNNEL 10
+// #define TUNNEL 10 
+// #define NORMAL_DRIVE_910 0
 
 // // Namespace
 // using namespace lanelet;
@@ -103,7 +112,7 @@
 //     geometry_msgs::PoseArray m_global_route_1;
 //     geometry_msgs::PoseArray m_global_route_2;
 //     geometry_msgs::PoseArray m_global_route_3;
-//     int m_mission_state = NORMAL_DRIVE;
+//     int m_mission_state = NORMAL_DRIVE_01;
 //     int m_traffic_light = GREEN;
 
 //     //Traffic light xyz
@@ -649,17 +658,26 @@
 #define _2_BLOCK 2
 #define _1_2_BLOCK 3
 
-#define NORMAL_DRIVE 0
+// Mission Define
+#define NORMAL_DRIVE_01 11
 #define TRAFFIC_LIGHT_1 1
+#define NORMAL_DRIVE_12 12
 #define TRAFFIC_LIGHT_2 2
+#define NORMAL_DRIVE_23 13
 #define TRAFFIC_LIGHT_3 3
+#define NORMAL_DRIVE_34 14
 #define TRAFFIC_LIGHT_4 4
+#define NORMAL_DRIVE_45 15
 #define TRAFFIC_LIGHT_5 5
+#define NORMAL_DRIVE_56 16
 #define TRAFFIC_LIGHT_6 6
+#define NORMAL_DRIVE_67 17
 #define TRAFFIC_LIGHT_7 7
+#define NORMAL_DRIVE_78 18
 #define TRAFFIC_LIGHT_8 8
 #define LOOP 9
-#define TUNNEL 10
+#define TUNNEL 10 
+#define NORMAL_DRIVE_910 0
 
 // Namespace
 using namespace lanelet;
@@ -708,7 +726,7 @@ private:
     geometry_msgs::PoseArray m_global_route_1;
     geometry_msgs::PoseArray m_global_route_2;
     geometry_msgs::PoseArray m_global_route_3;
-    int m_mission_state = NORMAL_DRIVE;
+    int m_mission_state = NORMAL_DRIVE_01;
     int m_traffic_light = GREEN;
 
 
@@ -935,7 +953,7 @@ void Detection::TrafficLightCallback(const carla_msgs::CarlaTrafficLightStatusLi
 void Detection::get_signal(){
 
     for(auto light : traffic_list.traffic_lights){
-        if((light.id==traffic_1_id_) && (traffic_passed_1==false) &&(m_mission_state!=TRAFFIC_LIGHT_1)){
+        if((light.id==traffic_1_id_) && (m_mission_state==NORMAL_DRIVE_01)){
             ROS_WARN_STREAM("0~1");
             m_traffic_light=light.state;
         }
@@ -943,10 +961,9 @@ void Detection::get_signal(){
         if((light.id==traffic_1_id_) && (m_mission_state==TRAFFIC_LIGHT_1)){
             ROS_WARN_STREAM("1");
             m_traffic_light=light.state;
-            traffic_passed_1=true;
         }
 
-        if((light.id==traffic_2_id_) && (traffic_passed_1==true) && (traffic_passed_2==false) &&(m_mission_state!=TRAFFIC_LIGHT_1)){
+        if((light.id==traffic_2_id_) && (m_mission_state==NORMAL_DRIVE_12)){
             ROS_WARN_STREAM("1~2");
             m_traffic_light=light.state;
         }
@@ -954,66 +971,59 @@ void Detection::get_signal(){
         if((light.id==traffic_2_id_) && (m_mission_state==TRAFFIC_LIGHT_2)){
             ROS_WARN_STREAM("2");
             m_traffic_light=light.state;
-            traffic_passed_2=true;
         }
 
-        if((light.id==traffic_3_id_) && (traffic_passed_2==true) && (traffic_passed_3==false) &&(m_mission_state!=TRAFFIC_LIGHT_2)){
+        if((light.id==traffic_3_id_) && (m_mission_state==NORMAL_DRIVE_23)){
             ROS_WARN_STREAM("2~3");
             m_traffic_light=light.state;
         }
 
-
         if((light.id==traffic_3_id_) && (m_mission_state==TRAFFIC_LIGHT_3)){
             ROS_WARN_STREAM("3");
             m_traffic_light=light.state;
-            traffic_passed_3=true;
         }
 
-        if((light.id==traffic_4_id_) && (traffic_passed_3==true) && (traffic_passed_4==false) &&(m_mission_state!=TRAFFIC_LIGHT_3)){
+        if((light.id==traffic_4_id_) &&(m_mission_state==NORMAL_DRIVE_34)){
             ROS_WARN_STREAM("3~4");
             m_traffic_light=light.state;
         }
 
-        if(light.id==traffic_4_id_ && m_mission_state==TRAFFIC_LIGHT_4){
+        if((light.id==traffic_4_id_) && (m_mission_state==TRAFFIC_LIGHT_4)){
             ROS_WARN_STREAM("4");
             m_traffic_light=light.state;
-            traffic_passed_4=true;
         }
 
-        if((light.id==traffic_5_id_) && (traffic_passed_4==true) && (traffic_passed_5==false) &&(m_mission_state!=TRAFFIC_LIGHT_4)){
+        if((light.id==traffic_5_id_) && (m_mission_state==NORMAL_DRIVE_45)){
             ROS_WARN_STREAM("4~5");
             m_traffic_light=light.state;
         }
 
-        if(light.id==traffic_5_id_ && m_mission_state==TRAFFIC_LIGHT_5){
+        if((light.id==traffic_5_id_) && (m_mission_state==TRAFFIC_LIGHT_5)){
             ROS_WARN_STREAM("5");
             m_traffic_light=light.state;
-            traffic_passed_5=true;
         }
 
-        if((light.id==traffic_6_id_) && (traffic_passed_5==true) && (traffic_passed_6==false) &&(m_mission_state!=TRAFFIC_LIGHT_6)){
+        if((light.id==traffic_6_id_) && (m_mission_state==NORMAL_DRIVE_56)){
             ROS_WARN_STREAM("5~6");
             m_traffic_light=light.state;
         }
 
-        if(light.id==traffic_6_id_ && m_mission_state==TRAFFIC_LIGHT_6){
+        if((light.id==traffic_6_id_) && (m_mission_state==TRAFFIC_LIGHT_6)){
             ROS_WARN_STREAM("6");
             m_traffic_light=light.state;
-            traffic_passed_6=true;
         }
 
-        if((light.id==traffic_7_id_) && (traffic_passed_6==true) && (traffic_passed_7==false) &&(m_mission_state!=TRAFFIC_LIGHT_7)){
+        if((light.id==traffic_7_id_) && (m_mission_state==NORMAL_DRIVE_67)){
             ROS_WARN_STREAM("6~7");
             m_traffic_light=light.state;
         }
 
-        if(light.id==traffic_7_id_ && m_mission_state==TRAFFIC_LIGHT_7){
+        if((light.id==traffic_7_id_) && (m_mission_state==TRAFFIC_LIGHT_7)){
             ROS_WARN_STREAM("7");
             m_traffic_light=light.state;
-            traffic_passed_7=true;
         }
 
-        if((light.id==traffic_8_id_) && (traffic_passed_7==true) && (traffic_passed_8==false) &&(m_mission_state!=TRAFFIC_LIGHT_8)){
+        if((light.id==traffic_8_id_) &&(m_mission_state==NORMAL_DRIVE_78)){
             ROS_WARN_STREAM("7~8");
             m_traffic_light=light.state;
         }
@@ -1021,19 +1031,22 @@ void Detection::get_signal(){
         if(light.id==traffic_8_id_ && m_mission_state==TRAFFIC_LIGHT_8){
             ROS_WARN_STREAM("8");
             m_traffic_light=light.state;
-            traffic_passed_8=true;
         }
 
-        if(m_traffic_light==RED){
-            ROS_WARN_STREAM("RED");
-        }
-        else if(m_traffic_light==GREEN){
-            ROS_WARN_STREAM("Green");
-        }
-        else if(m_traffic_light==GREEN_){
-            ROS_WARN_STREAM("Green");
-        }
 
+    }
+    
+    if(m_traffic_light==RED){
+        ROS_WARN_STREAM("RED");
+    }
+    else if(m_traffic_light==GREEN){
+        ROS_WARN_STREAM("Green");
+    }
+    else if(m_traffic_light==GREEN_){
+        ROS_WARN_STREAM("Green");
+    }
+    else if(m_traffic_light==YELLOW){
+        ROS_WARN_STREAM("Yellow");
     }
 
 }
