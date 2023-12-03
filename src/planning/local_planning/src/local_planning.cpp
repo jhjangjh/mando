@@ -356,16 +356,13 @@ double LocalPlanning::SpeedProfiling(double curvature)
         }
     }
 
-    // if((m_mission == TRAFFIC_LIGHT_1 && (traffic_signal==RED||traffic_signal==YELLOW)) || (m_block == _1_2_BLOCK))
-    // {
-    //     speed = 0.;
-    // }
-    if((((m_mission == TRAFFIC_LIGHT_1) || (m_mission == TRAFFIC_LIGHT_2) || (m_mission == TRAFFIC_LIGHT_3) || (m_mission == TRAFFIC_LIGHT_4)|| 
+
+    if((((m_mission == TRAFFIC_LIGHT_1) || (m_mission == TRAFFIC_LIGHT_2) || (m_mission == TRAFFIC_LIGHT_3) || (m_mission == TRAFFIC_LIGHT_4) ||
     (m_mission == TRAFFIC_LIGHT_5) || (m_mission == TRAFFIC_LIGHT_6) || (m_mission == TRAFFIC_LIGHT_7) || (m_mission == TRAFFIC_LIGHT_8) ) && (traffic_signal==RED || traffic_signal==YELLOW)) || (m_block == _1_2_BLOCK))
     {
         speed = 0.;
     }
-    
+
     return speed*3.6;
 
 }
