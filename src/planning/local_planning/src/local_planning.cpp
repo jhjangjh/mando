@@ -356,8 +356,18 @@ double LocalPlanning::SpeedProfiling(double curvature)
         }
     }
 
-    if((m_mission == TRAFFIC_LIGHT && (traffic_signal==RED||traffic_signal==YELLOW)) || (m_block == _1_2_BLOCK))
+
+    if((((m_mission == TRAFFIC_LIGHT_1) || (m_mission == TRAFFIC_LIGHT_2) || (m_mission == TRAFFIC_LIGHT_3) || (m_mission == TRAFFIC_LIGHT_4) ||
+    (m_mission == TRAFFIC_LIGHT_5) || (m_mission == TRAFFIC_LIGHT_6) || (m_mission == TRAFFIC_LIGHT_7) || (m_mission == TRAFFIC_LIGHT_8) ) && (traffic_signal==RED || traffic_signal==YELLOW)) || (m_block == _1_2_BLOCK))
     {
+        speed = 0.;
+    }
+
+    if(m_mission == STOP){
+        speed = 0.;
+    }
+
+    if(m_mission == FAIL){
         speed = 0.;
     }
 
@@ -392,11 +402,15 @@ void LocalPlanning::UpdateRvizTrajectory(const kucudas_msgs::Trajectory& traject
     speed_marker.scale = path_marker.scale;
 
     // Color space
-    path_marker.color.r = 0.0f;
-    path_marker.color.g = 0.78f;
-    path_marker.color.b = 0.58f;
-    path_marker.color.a = 0.5f;
-    speed_marker.color = path_marker.color;
+    path_marker.color.r = 1.0f;
+    path_marker.color.g = 0.0f;
+    path_marker.color.b = 0.0f;
+    path_marker.color.a = 1.0f;
+
+    speed_marker.color.r = 1.0f;
+    speed_marker.color.g = 0.0f;
+    speed_marker.color.b = 0.0f;
+    speed_marker.color.a = 1.0f;
 
     for (uint16_t i = 0; i < trajectory.point.size(); i++) {
         geometry_msgs::Point point;
@@ -405,7 +419,10 @@ void LocalPlanning::UpdateRvizTrajectory(const kucudas_msgs::Trajectory& traject
         point.z = 0.0;
         path_marker.points.push_back(point);
         speed_marker.points.push_back(point);
-        point.z = trajectory.point[i].speed / 3.0;
+
+        
+        // point.z = trajectory.point[i].speed / 3.0;
+        point.z = 1.0;
         speed_marker.points.push_back(point);
     }
     marker_array.markers.push_back(path_marker);

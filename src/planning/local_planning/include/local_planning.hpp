@@ -41,14 +41,27 @@
 #include <carla_msgs/CarlaEgoVehicleStatus.h>
 
 // Mission Define
-#define NORMAL_DRIVE 0
-#define STATIC_OBSTACLE_1 1
-#define TRAFFIC_LIGHT 2
-#define ROTARY 3
-#define DYNAMIC_OBSTACLE 4
-#define PARKING 5
-#define TUNNEL 6
-#define STATIC_OBSTACLE_3 7
+#define NORMAL_DRIVE_01 11
+#define TRAFFIC_LIGHT_1 1
+#define NORMAL_DRIVE_12 12
+#define TRAFFIC_LIGHT_2 2
+#define NORMAL_DRIVE_23 13
+#define TRAFFIC_LIGHT_3 3
+#define NORMAL_DRIVE_34 14
+#define TRAFFIC_LIGHT_4 4
+#define NORMAL_DRIVE_45 15
+#define TRAFFIC_LIGHT_5 5
+#define NORMAL_DRIVE_56 16
+#define TRAFFIC_LIGHT_6 6
+#define NORMAL_DRIVE_67 17
+#define TRAFFIC_LIGHT_7 7
+#define NORMAL_DRIVE_78 18
+#define TRAFFIC_LIGHT_8 8
+#define LOOP 9
+#define TUNNEL 10 
+#define NORMAL_DRIVE_910 0
+#define STOP 99
+#define FAIL 77
 
 #define RED 0
 #define GREEN 2
@@ -160,7 +173,7 @@ private:
 
     int m_print_count = 0;
 
-    int m_mission = NORMAL_DRIVE;
+    int m_mission = NORMAL_DRIVE_01;
 
     int traffic_signal = GREEN;      // subscribing traffic light signal     
 };

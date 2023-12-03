@@ -39,22 +39,37 @@
 
 // carla
 #include <carla_msgs/CarlaEgoVehicleStatus.h>
+#include <carla_msgs/CarlaCollisionEvent.h>
 
 #define LEFT_BOUNDARY_ID 14524
 #define RIGHT_BOUNDARY_ID 30621
-#define LANE_1_ID -5163
+#define LANE_1_ID -5196
 #define LANE_2_ID -5162
 #define LANE_LOOP_ID -5164
 
 // Mission Define
-#define NORMAL_DRIVE 0
-#define STATIC_OBSTACLE_1 1
-#define TRAFFIC_LIGHT 2
-#define ROTARY 3
-#define DYNAMIC_OBSTACLE 4
-#define PARKING 5
-#define TUNNEL 6
-#define STATIC_OBSTACLE_3 7
+#define NORMAL_DRIVE_01 11
+#define TRAFFIC_LIGHT_1 1
+#define NORMAL_DRIVE_12 12
+#define TRAFFIC_LIGHT_2 2
+#define NORMAL_DRIVE_23 13
+#define TRAFFIC_LIGHT_3 3
+#define NORMAL_DRIVE_34 14
+#define TRAFFIC_LIGHT_4 4
+#define NORMAL_DRIVE_45 15
+#define TRAFFIC_LIGHT_5 5
+#define NORMAL_DRIVE_56 16
+#define TRAFFIC_LIGHT_6 6
+#define NORMAL_DRIVE_67 17
+#define TRAFFIC_LIGHT_7 7
+#define NORMAL_DRIVE_78 18
+#define TRAFFIC_LIGHT_8 8
+#define LOOP 9
+#define TUNNEL 10 
+#define NORMAL_DRIVE_910 0
+#define STOP 99
+#define FAIL 77
+
 
 // Namespace
 using namespace lanelet;
@@ -80,6 +95,7 @@ public:
     void GnssCallback(const sensor_msgs::NavSatFixConstPtr &in_gnss_msg);
     void TfCallback(const tf::tfMessage::ConstPtr& in_tf_msg);
     void VsCallback(const carla_msgs::CarlaEgoVehicleStatusConstPtr &in_vs_msg);
+    void CeCallback(const carla_msgs::CarlaCollisionEventConstPtr &in_ce_msg);
     
     
 
@@ -97,6 +113,7 @@ private:
     ros::Subscriber s_gnss_sub;
     ros::Subscriber s_tf_sub;
     ros::Subscriber s_vs_sub;
+    ros::Subscriber s_ce_sub;
 
     // Messages
     geometry_msgs::PoseArray global_route1_msg;
@@ -143,8 +160,10 @@ private:
     double m_yaw;
     double m_velocity;
 
-    int m_mission = NORMAL_DRIVE;
+    int m_mission = NORMAL_DRIVE_01;
     int m_print_count = 0;
+
+    bool collision = false;
 };
 
 #endif // __MISSION_GENERATOR_HPP__
